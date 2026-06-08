@@ -11,7 +11,8 @@
 | **Materia** | Bases de Datos Aplicada — 3641 |
 | **Comisión** | 2900 |
 | **Grupo** | [Nº 1] |
-| **Integrantes** | [Apellido, Nombre — Apellido, Nombre — …] |
+| **Integrantes** | <ul><li>`Arenas Vlasco, Artin Leonel`</li><li>`Leguizamon Sarmiento, Juan Andrés`</li><li>`Rios, Marcos Adrían`</li><li>`Romano, Jorge Dario`</li></ul> |
+| **Proyecto** | Sistema de Gestión para Parques Nacionales |
 | **Motor** | Microsoft SQL Server 2022 (16.x) Standard Edition |
 | **Sistema operativo** | Windows Server 2022 Standard |
 | **Fecha** | Mayo 2026 |
@@ -507,27 +508,17 @@ Se habilita SQL Server Audit para registrar como mínimo los siguientes eventos 
 CREATE SERVER AUDIT [Audit_APN]
 
 TO FILE (FILEPATH = 'J:\\Audit\\', MAXSIZE = 100 MB, MAX_ROLLOVER_FILES = 50)
-
 WITH (ON_FAILURE = CONTINUE, QUEUE_DELAY = 1000);
 
 CREATE SERVER AUDIT SPECIFICATION [AuditSpec_APN]
-
 FOR SERVER AUDIT [Audit_APN]
-
 ADD (FAILED_LOGIN_GROUP),
-
 ADD (SUCCESSFUL_LOGIN_GROUP),
-
 ADD (SERVER_ROLE_MEMBER_CHANGE_GROUP),
-
 ADD (DATABASE_ROLE_MEMBER_CHANGE_GROUP),
-
 ADD (SERVER_PERMISSION_CHANGE_GROUP),
-
 ADD (SCHEMA_OBJECT_PERMISSION_CHANGE_GROUP),
-
 ADD (LOGIN_CHANGE_PASSWORD_GROUP),
-
 ADD (DATABASE_PRINCIPAL_CHANGE_GROUP);
 
 ALTER SERVER AUDIT [Audit_APN] WITH (STATE = ON);
