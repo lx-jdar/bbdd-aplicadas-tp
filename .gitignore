@@ -1,0 +1,38 @@
+# Carpetas temporales de Visual Studio / SSMS
+.vs/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+
+# Archivos de compilación del proyecto SQL
+*.dbmdl
+*.jfm
+bin/
+obj/
+
+# DataGrip / JetBrains
+.idea/
+*.iml
+
+# SQL Server Management Studio (User Settings)
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Archivos físicos y Backups de SQL Server (¡CRÍTICO!)
+*.bak
+*.mdf
+*.ldf
+*.ndf
+*.log
+
+# Sistemas Operativos
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+.AppleDouble
+.LSOverride
