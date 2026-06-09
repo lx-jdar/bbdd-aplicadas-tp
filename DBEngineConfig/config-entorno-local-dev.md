@@ -67,8 +67,8 @@ Backup Directory:C:\ProgramFiles\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\B
 - Ubicacion: C:\ProgramFiles\Microsoft SQL Server\MSSQL15.SQLEXPRESS\MSSQL\Data\templog.ldf
 
 ## Memory
-- Min: 0 MB
-- Max: 1410MB
+- Min: 1024MB
+- Max: 2048MB
 
 ## Filestream
 No activo
