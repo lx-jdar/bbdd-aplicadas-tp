@@ -1,0 +1,49 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Default" />
+    <Platform Name="Default" />
+  </Configurations>
+  <Folder Name="/00_Database/">
+    <File Path="CreateDatabase.sql" />
+  </Folder>
+  <Folder Name="/01_Security/">
+    <File Path="Logins.sql" />
+  </Folder>
+  <Folder Name="/02_Storage/">
+    <File Path="DBSchemas.sql" />
+  </Folder>
+  <Folder Name="/02_Storage/Indexes/">
+    <File Path="IndexH.sql" />
+  </Folder>
+  <Folder Name="/02_Storage/Keys/">
+    <File Path="dbo.key_FKExample.sql" />
+  </Folder>
+  <Folder Name="/02_Storage/Tables/">
+    <File Path="dbo.Example.sql" />
+  </Folder>
+  <Folder Name="/03_Programmability/" />
+  <Folder Name="/03_Programmability/Functions/">
+    <File Path="dbo.ufn_CalculateTotal.sql" />
+  </Folder>
+  <Folder Name="/03_Programmability/Stored Procedures/">
+    <File Path="dbo.usp_GetClient.sql" />
+  </Folder>
+  <Folder Name="/03_Programmability/Triggers/">
+    <File Path="dbo.trg_TriggerClient.sql" />
+  </Folder>
+  <Folder Name="/03_Programmability/Views/">
+    <File Path="dbo.vw_ClientOrders.sql" />
+  </Folder>
+  <Folder Name="/04_Data/">
+    <File Path="SeedData.sql" />
+  </Folder>
+  <Folder Name="/05_Jobs/">
+    <File Path="SQLAgentJobs.sql" />
+  </Folder>
+  <Folder Name="/06_Migrations/">
+    <File Path="001_InitialSchema.sql" />
+  </Folder>
+  <Folder Name="/07_Utilities/">
+    <File Path="Scripts de mantenimiento.sql" />
+  </Folder>
+</Solution>
