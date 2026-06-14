@@ -27,6 +27,9 @@ obj/
 *.ldf
 *.ndf
 *.log
+tp.pdf
+CLAUDE.md
+AGENTS.md
 
 # Sistemas Operativos
 Thumbs.db

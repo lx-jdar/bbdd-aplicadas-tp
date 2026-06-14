@@ -1,0 +1,43 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "sqlproj: Build apn",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"/home/marcos/dev/workspace/unlam/bbdd-aplicadas-tp/apn/apn.sqlproj",
+				"/p:NetCoreBuild=true",
+				"/p:NETCoreTargetsPath=/home/marcos/.vscode/extensions/ms-mssql.sql-database-projects-vscode-1.6.1/BuildDirectory",
+				"/p:SystemDacpacsLocation=/home/marcos/.vscode/extensions/ms-mssql.sql-database-projects-vscode-1.6.1/BuildDirectory"
+			],
+			"problemMatcher": "$sqlproj-problem-matcher",
+			"isBackground": true,
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"detail": "Builds the apn SQL project"
+		},
+		{
+			"label": "sqlproj: Build GestionParquesNacionales",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"/home/marcos/dev/workspace/unlam/bbdd-aplicadas-tp/GestionParquesNacionales/GestionParquesNacionales.sqlproj",
+				"/p:NetCoreBuild=true",
+				"/p:NETCoreTargetsPath=/home/marcos/.vscode/extensions/ms-mssql.sql-database-projects-vscode-1.6.1/BuildDirectory",
+				"/p:SystemDacpacsLocation=/home/marcos/.vscode/extensions/ms-mssql.sql-database-projects-vscode-1.6.1/BuildDirectory"
+			],
+			"problemMatcher": "$sqlproj-problem-matcher",
+			"isBackground": true,
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"detail": "Builds the GestionParquesNacionales SQL project"
+		}
+	]
+}
