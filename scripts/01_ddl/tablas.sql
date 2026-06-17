@@ -11,366 +11,306 @@ Integrantes:
      - Rios, Marcos Adrían
      
      - Romano, Jorge Dario
-Objetivo: Creacion inicial de tablas, indices y Constraints.
+Objetivo: Creacion inicial de la base, schemas, tablas, indices, constraints.
 Fecha:    14 de Junio 2026
 ============================================================ */
 
-
--- ============================================================
---  ESQUEMA: PARQUES
--- ============================================================
-
--- ------------------------------------------------------------
---  TiposParque
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS PARQUES.TiposParque;
+IF DB_ID('GestionParquesNacionales') IS NULL
+    CREATE DATABASE GestionParquesNacionales;
 GO
-CREATE TABLE PARQUES.TipoParque(
-    ID INT,
-    Descripcion VARCHAR(255) NOT NULL
-);
 
-ALTER TABLE PARQUES.TiposParque
-    ADD CONSTRAINT PK_TiposParque PRIMARY KEY (ID_TipoParque);
-
-
--- ------------------------------------------------------------
---  Parques
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS PARQUES.Parques;
+USE GestionParquesNacionales;
 GO
-CREATE TABLE PARQUES.Parques(
-    ID INT,
+
+IF SCHEMA_ID('Parques') IS NULL EXEC('CREATE SCHEMA Parques');
+IF SCHEMA_ID('Personal') IS NULL EXEC('CREATE SCHEMA Personal');
+IF SCHEMA_ID('Concesiones') IS NULL EXEC('CREATE SCHEMA Concesiones');
+IF SCHEMA_ID('Ventas') IS NULL EXEC('CREATE SCHEMA Ventas');
+GO
+
+-- -----------------------------------------------------------------------------
+-- DROP DE FOREIGN KEYS (Necesario para evitar errores al hacer DROP de las tablas)
+-- -----------------------------------------------------------------------------
+IF OBJECT_ID('Parques.FK_PrecioEntrada_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Parques.PrecioEntrada DROP CONSTRAINT FK_PrecioEntrada_Parque_ParqueId;
+IF OBJECT_ID('Parques.FK_Actividad_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Parques.Actividad DROP CONSTRAINT FK_Actividad_Parque_ParqueId;
+IF OBJECT_ID('Personal.FK_TourGuia_Guia_GuiaId', 'F') IS NOT NULL ALTER TABLE Personal.TourGuia DROP CONSTRAINT FK_TourGuia_Guia_GuiaId;
+IF OBJECT_ID('Personal.FK_TourGuia_Actividad_ActividadId', 'F') IS NOT NULL ALTER TABLE Personal.TourGuia DROP CONSTRAINT FK_TourGuia_Actividad_ActividadId;
+IF OBJECT_ID('Personal.FK_Guardaparque_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Personal.Guardaparque DROP CONSTRAINT FK_Guardaparque_Parque_ParqueId;
+IF OBJECT_ID('Concesiones.FK_Concesion_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Concesiones.Concesion DROP CONSTRAINT FK_Concesion_Parque_ParqueId;
+IF OBJECT_ID('Concesiones.FK_PagoCanon_Concesion_ConcesionId', 'F') IS NOT NULL ALTER TABLE Concesiones.PagoCanon DROP CONSTRAINT FK_PagoCanon_Concesion_ConcesionId;
+IF OBJECT_ID('Ventas.FK_Venta_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Ventas.Venta DROP CONSTRAINT FK_Venta_Parque_ParqueId;
+IF OBJECT_ID('Ventas.FK_Venta_Cliente_ClienteId', 'F') IS NOT NULL ALTER TABLE Ventas.Venta DROP CONSTRAINT FK_Venta_Cliente_ClienteId;
+IF OBJECT_ID('Ventas.FK_EntradaLinea_Venta_VentaId', 'F') IS NOT NULL ALTER TABLE Ventas.EntradaLinea DROP CONSTRAINT FK_EntradaLinea_Venta_VentaId;
+IF OBJECT_ID('Ventas.FK_EntradaLinea_TipoEntrada_TipoEntradaId', 'F') IS NOT NULL ALTER TABLE Ventas.EntradaLinea DROP CONSTRAINT FK_EntradaLinea_TipoEntrada_TipoEntradaId;
+IF OBJECT_ID('Ventas.FK_ActividadLinea_Venta_VentaId', 'F') IS NOT NULL ALTER TABLE Ventas.ActividadLinea DROP CONSTRAINT FK_ActividadLinea_Venta_VentaId;
+IF OBJECT_ID('Ventas.FK_ActividadLinea_Actividad_ActividadId', 'F') IS NOT NULL ALTER TABLE Ventas.ActividadLinea DROP CONSTRAINT FK_ActividadLinea_Actividad_ActividadId;
+IF OBJECT_ID('Ventas.FK_Entrada_EntradaLinea_EntradaLineaId', 'F') IS NOT NULL ALTER TABLE Ventas.Entrada DROP CONSTRAINT FK_Entrada_EntradaLinea_EntradaLineaId;
+GO
+
+-- -----------------------------------------------------------------------------
+-- TABLAS Y CONSTRAINTS
+-- -----------------------------------------------------------------------------
+
+IF OBJECT_ID('Parques.Parque', 'U') IS NOT NULL DROP TABLE Parques.Parque;
+CREATE TABLE Parques.Parque (
+    ParqueId INT IDENTITY(1,1) NOT NULL,
     Nombre VARCHAR(100) NOT NULL,
-    Ubicacion VARCHAR(255) NOT NULL,
-    Superficie DECIMAL(18,2),
-    UID_Externo VARCHAR(100),
-    ID_TipoParque INT NOT NULL
+    Ubicacion VARCHAR(250) NOT NULL,
+    Superficie DECIMAL(18,2) NOT NULL,
+    UidExterno VARCHAR(100) NOT NULL,
+    TipoParque CHAR(15) NOT NULL,
+    Latitud DECIMAL(9,6) NOT NULL,
+    Longitud DECIMAL(9,6) NOT NULL
 );
+ALTER TABLE Parques.Parque ADD CONSTRAINT PK_Parque_ParqueId PRIMARY KEY (ParqueId);
+ALTER TABLE Parques.Parque ADD CONSTRAINT CK_Parque_TipoParque CHECK (TipoParque IN ('Nacional', 'Provincial', 'Municipal', 'Reserva'));
 
-ALTER TABLE PARQUES.Parques
-    ADD CONSTRAINT PK_Parques PRIMARY KEY (ID);
 
-
--- ============================================================
---  ESQUEMA: VENTAS
--- ============================================================
-
--- ------------------------------------------------------------
---  Formas_Pago
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS VENTAS.Formas_Pago;
-GO
-CREATE TABLE VENTAS.Formas_Pago (
-    ID INT NOT NULL,
-    Descripcion VARCHAR(50) NULL
+IF OBJECT_ID('Parques.PrecioEntrada', 'U') IS NOT NULL DROP TABLE Parques.PrecioEntrada;
+CREATE TABLE Parques.PrecioEntrada (
+    PrecioEntradaId INT IDENTITY(1,1) NOT NULL,
+    ParqueId INT NOT NULL,
+    Precio DECIMAL(16,6) NOT NULL
 );
+ALTER TABLE Parques.PrecioEntrada ADD CONSTRAINT PK_PrecioEntrada_PrecioEntradaId PRIMARY KEY (PrecioEntradaId);
 
-ALTER TABLE VENTAS.Formas_Pago
-    ADD CONSTRAINT PK_Formas_Pago PRIMARY KEY (ID);
-ALTER TABLE VENTAS.Formas_Pago
-    ADD CONSTRAINT Unique_Formas_Pago UNIQUE (ID);
 
--- ------------------------------------------------------------
---  Tipos_Visitante
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS VENTAS.Tipos_Visitante;
-GO
-CREATE TABLE VENTAS.Tipos_Visitante (
-    ID_TipoVisitante INT NOT NULL,
-    Descripcion VARCHAR(50) NULL
+IF OBJECT_ID('Parques.Actividad', 'U') IS NOT NULL DROP TABLE Parques.Actividad;
+CREATE TABLE Parques.Actividad (
+    ActividadId INT IDENTITY(1,1) NOT NULL,
+    ParqueId INT NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Tipo VARCHAR(30) NOT NULL,
+    DuracionMinutos INT NOT NULL,
+    CupoMaximo INT NOT NULL,
+    Valor DECIMAL(7,2) NOT NULL
 );
-
-ALTER TABLE VENTAS.Tipos_Visitante
-    ADD CONSTRAINT PK_Tipos_Visitante PRIMARY KEY (ID_TipoVisitante);
+ALTER TABLE Parques.Actividad ADD CONSTRAINT PK_Actividad_ActividadId PRIMARY KEY (ActividadId);
 
 
--- ------------------------------------------------------------
---  VentaEntrada_Cabecera
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS VENTAS.VentaEntrada_Cabecera;
-GO
-CREATE TABLE VENTAS.VentaEntrada_Cabecera (
-    ID_Venta INT NOT NULL,
-    ID_Parque INT NULL,
-    ID_FormaPago INT NULL,
-    Punto_Venta INT NULL,
-    Numero_Ticket BIGINT NULL,
-    Fecha_Venta DATETIME NULL,
-    Total_Facturado DECIMAL(19,4) NULL
+IF OBJECT_ID('Personal.Guia', 'U') IS NOT NULL DROP TABLE Personal.Guia;
+CREATE TABLE Personal.Guia (
+    GuiaId INT IDENTITY(1,1) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
+    Dni INT NOT NULL,
+    Titulo VARCHAR(100) NOT NULL,
+    Especialidad VARCHAR(100) NOT NULL,
+    VigenciaAutorizacion DATE NOT NULL
 );
+ALTER TABLE Personal.Guia ADD CONSTRAINT PK_Guia_GuiaId PRIMARY KEY (GuiaId);
+ALTER TABLE Personal.Guia ADD CONSTRAINT UQ_Guia_Dni UNIQUE (Dni);
 
-ALTER TABLE VENTAS.VentaEntrada_Cabecera
-    ADD CONSTRAINT PK_VentaEntrada_Cabecera PRIMARY KEY (ID_Venta);
 
-
--- ------------------------------------------------------------
---  VentaEntrada_Detalle
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS VENTAS.VentaEntrada_Detalle;
-GO
-CREATE TABLE VENTAS.VentaEntrada_Detalle (
-    ID_Detalle INT NOT NULL,
-    ID_Venta INT NULL,
-    ID_Actividad INT NULL,
-    ID_TipoVisitante INT NULL,
-    Cantidad INT NULL,
-    Precio_Unitario DECIMAL(19,4) NULL,
-    Subtotal DECIMAL(19,4) NULL,
-    Fecha_Actividad DATETIME NULL
+IF OBJECT_ID('Personal.TourGuia', 'U') IS NOT NULL DROP TABLE Personal.TourGuia;
+CREATE TABLE Personal.TourGuia (
+    TourGuiaId INT IDENTITY(1,1) NOT NULL,
+    GuiaId INT NOT NULL,
+    ActividadId INT NOT NULL,
+    HorarioInicio TIME NOT NULL,
+    HorarioFin TIME NOT NULL
 );
-
-ALTER TABLE VENTAS.VentaEntrada_Detalle
-    ADD CONSTRAINT PK_VentaEntrada_Detalle PRIMARY KEY (ID_Detalle);
+ALTER TABLE Personal.TourGuia ADD CONSTRAINT PK_TourGuia_TourGuiaId PRIMARY KEY (TourGuiaId);
 
 
--- ============================================================
---  ESQUEMA: CONCESIONES
--- ============================================================
-
--- ------------------------------------------------------------
---  Concesiones
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS CONCESIONES.Concesiones;
-GO
-CREATE TABLE CONCESIONES.Concesiones (
-    ID_Concesion INT NOT NULL,
-    ID_Parque INT NULL,
-    Empresa_Concesionaria VARCHAR(150) NULL,
-    Tipo_Actividad VARCHAR(100) NULL,
-    Fecha_Inicio DATE NULL,
-    Fecha_Fin DATE NULL,
-    Canon_Mensual DECIMAL(19,4) NULL,
-    Activa BIT NULL
+IF OBJECT_ID('Personal.Guardaparque', 'U') IS NOT NULL DROP TABLE Personal.Guardaparque;
+CREATE TABLE Personal.Guardaparque (
+    GuardaparqueId INT IDENTITY(1,1) NOT NULL,
+    ParqueId INT NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    Apellido VARCHAR(100) NOT NULL,
+    Dni INT NOT NULL,
+    FechaIngresoSistema DATE NOT NULL,
+    FechaEgresoSistema DATE NULL,
+    EsActivo BIT NOT NULL
 );
+ALTER TABLE Personal.Guardaparque ADD CONSTRAINT PK_Guardaparque_GuardaparqueId PRIMARY KEY (GuardaparqueId);
+--ALTER TABLE Personal.Guardaparque ADD CONSTRAINT UQ_Guardaparque_Dni UNIQUE (Dni);
+ALTER TABLE Personal.Guardaparque ADD CONSTRAINT DF_Guardaparque_EsActivo DEFAULT 1 FOR EsActivo;
 
-ALTER TABLE CONCESIONES.Concesiones
-    ADD CONSTRAINT PK_Concesiones PRIMARY KEY (ID_Concesion);
 
-
--- ------------------------------------------------------------
---  Pagos_Canon
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS CONCESIONES.Pagos_Canon;
-GO
-CREATE TABLE CONCESIONES.Pagos_Canon (
-    ID_Pago INT NOT NULL,
-    ID_Concesion INT NULL,
-    Fecha_Pago DATETIME NULL,
-    Periodo_Mes INT NULL,
-    Periodo_Anio INT NULL,
-    Monto_Abonado DECIMAL(19,4) NULL
+IF OBJECT_ID('Concesiones.Concesion', 'U') IS NOT NULL DROP TABLE Concesiones.Concesion;
+CREATE TABLE Concesiones.Concesion (
+    ConcesionId INT IDENTITY(1,1) NOT NULL,
+    ParqueId INT NOT NULL,
+    Cuit BIGINT NOT NULL, 
+    EmpresaConcesionaria VARCHAR(150) NOT NULL,
+    TipoActividad VARCHAR(100) NOT NULL,
+    FechaInicio DATE NOT NULL,
+    FechaFin DATE NOT NULL,
+    CanonMensual DECIMAL(19,4) NOT NULL,
+    EsActiva BIT NOT NULL
 );
+ALTER TABLE Concesiones.Concesion ADD CONSTRAINT PK_Concesion_ConcesionId PRIMARY KEY (ConcesionId);
+--ALTER TABLE Concesiones.Concesion ADD CONSTRAINT UQ_Concesion_Cuit UNIQUE (Cuit);
+ALTER TABLE Concesiones.Concesion ADD CONSTRAINT DF_Concesion_EsActiva DEFAULT 1 FOR EsActiva;
 
-ALTER TABLE CONCESIONES.Pagos_Canon
-    ADD CONSTRAINT PK_Pagos_Canon PRIMARY KEY (ID_Pago);
 
-
--- ============================================================
---  ESQUEMA: ACTIVIDADES
--- ============================================================
-
--- ------------------------------------------------------------
---  Actividades
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS Actividades.Actividades;
-GO
-CREATE TABLE ACTIVIDADES.Actividades (
-    ID_Actividad INT NOT NULL,
-    Nombre VARCHAR(100) NULL,
-    Tipo VARCHAR(30) NULL,
-    Duracion_Minutos INT NULL,
-    Cupo_Maximo INT NULL
+IF OBJECT_ID('Concesiones.PagoCanon', 'U') IS NOT NULL DROP TABLE Concesiones.PagoCanon;
+CREATE TABLE Concesiones.PagoCanon (
+    PagoCanonId INT IDENTITY(1,1) NOT NULL,
+    ConcesionId INT NOT NULL,
+    FechaPago DATETIME NOT NULL,
+    PeriodoMes INT NOT NULL,
+    PeriodoAnio INT NOT NULL,
+    MontoAbonado DECIMAL(19,4) NOT NULL
 );
+ALTER TABLE Concesiones.PagoCanon ADD CONSTRAINT PK_PagoCanon_PagoCanonId PRIMARY KEY (PagoCanonId);
+ALTER TABLE Concesiones.PagoCanon ADD CONSTRAINT CK_PagoCanon_PeriodoMes CHECK (PeriodoMes BETWEEN 1 AND 12);
+--ALTER TABLE Concesiones.PagoCanon ADD CONSTRAINT CK_PagoCanon_PeriodoAnio CHECK (PeriodoAnio > 2000);
 
-ALTER TABLE ACTIVIDADES.Actividades
-    ADD CONSTRAINT PK_Actividades PRIMARY KEY (ID_Actividad);
 
-
--- ------------------------------------------------------------
---  Parque_Precio_Actividad
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS ACTIVIDADES.Parque_Precio_Actividad;
-GO
-CREATE TABLE ACTIVIDADES.Parque_Precio_Actividad (
-    ID_Parque INT NOT NULL,
-    ID_Actividad INT NOT NULL,
-    Precio_Base DECIMAL(19,4) NULL
+IF OBJECT_ID('Ventas.Cliente', 'U') IS NOT NULL DROP TABLE Ventas.Cliente;
+CREATE TABLE Ventas.Cliente (
+    ClienteId INT IDENTITY(1,1) NOT NULL,
+    NombreApellido VARCHAR(50) NOT NULL,
+    Dni DECIMAL(11,0) NOT NULL
 );
+ALTER TABLE Ventas.Cliente ADD CONSTRAINT PK_Cliente_ClienteId PRIMARY KEY (ClienteId);
+ALTER TABLE Ventas.Cliente ADD CONSTRAINT UQ_Cliente_Dni UNIQUE (Dni);
 
-ALTER TABLE ACTIVIDADES.Parque_Precio_Actividad
-    ADD CONSTRAINT PK_Parque_Precio_Actividad PRIMARY KEY (ID_Parque, ID_Actividad);
 
-
--- ------------------------------------------------------------
---  Horarios_Permitidos
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS ACTIVIDADES.Horarios_Permitidos;
-GO
-CREATE TABLE ACTIVIDADES.Horarios_Permitidos (
-    ID_Horario INT NOT NULL,
-    Nombre_Turno VARCHAR(30) NULL,
-    Hora_Inicio TIME NOT NULL,
-    Hora_Fin TIME NOT NULL
+IF OBJECT_ID('Ventas.Venta', 'U') IS NOT NULL DROP TABLE Ventas.Venta;
+CREATE TABLE Ventas.Venta (
+    VentaId INT IDENTITY(1,1) NOT NULL,
+    ParqueId INT NOT NULL,
+    ClienteId INT NOT NULL,
+    FormaPago CHAR(15) NOT NULL,
+    PuntoVenta INT NOT NULL,
+    NumeroTicket BIGINT NOT NULL,
+    FechaVenta DATETIME NOT NULL,
+    TotalFacturado DECIMAL(19,4) NOT NULL
 );
+ALTER TABLE Ventas.Venta ADD CONSTRAINT PK_Venta_VentaId PRIMARY KEY (VentaId);
+ALTER TABLE Ventas.Venta ADD CONSTRAINT CK_Venta_FormaPago CHECK (FormaPago IN ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA'));
+ALTER TABLE Ventas.Venta ADD CONSTRAINT UQ_Venta_PuntoVenta_NumeroTicket UNIQUE (PuntoVenta, NumeroTicket);
 
-ALTER TABLE ACTIVIDADES.Horarios_Permitidos
-    ADD CONSTRAINT PK_Horarios_Permitidos PRIMARY KEY (ID_Horario);
 
-
--- ------------------------------------------------------------
---  Tours_Guias
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS ACTIVIDADES.Tours_Guias;
-GO
-CREATE TABLE ACTIVIDADES.Tours_Guias (
-    ID_Tour_Guia INT NOT NULL,
-    ID_Parque INT NULL,
-    ID_Actividad INT NULL,
-    ID_Guia INT NULL,
-    ID_Horario INT NULL
+IF OBJECT_ID('Ventas.TipoEntrada', 'U') IS NOT NULL DROP TABLE Ventas.TipoEntrada;
+CREATE TABLE Ventas.TipoEntrada (
+    TipoEntradaId INT IDENTITY(1,1) NOT NULL,
+    Nombre VARCHAR(100) NOT NULL,
+    AjustePorcentaje DECIMAL(5,2) NOT NULL
 );
-
-ALTER TABLE ACTIVIDADES.Tours_Guias
-    ADD CONSTRAINT PK_Tours_Guias PRIMARY KEY (ID_Tour_Guia);
+ALTER TABLE Ventas.TipoEntrada ADD CONSTRAINT PK_TipoEntrada_TipoEntradaId PRIMARY KEY (TipoEntradaId);
 
 
--- ============================================================
---  ESQUEMA: PERSONAL
--- ============================================================
-
--- ------------------------------------------------------------
---  Guardaparques
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS PERSONAL.Guardaparques;
-GO
-CREATE TABLE PERSONAL.Guardaparques (
-    ID_Guardaparque INT NOT NULL,
-    Nombre VARCHAR(100) NULL,
-    Apellido VARCHAR(100) NULL,
-    DNI INT NULL,
-    Fecha_Ingreso_Sistema DATE NULL,
-    Activo BIT NULL,
-    ID_Parque_Actual INT NULL
+IF OBJECT_ID('Ventas.EntradaLinea', 'U') IS NOT NULL DROP TABLE Ventas.EntradaLinea;
+CREATE TABLE Ventas.EntradaLinea (
+    EntradaLineaId INT IDENTITY(1,1) NOT NULL,
+    VentaId INT NOT NULL,
+    TipoEntradaId INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(19,4) NOT NULL,
+    Subtotal DECIMAL(19,4) NOT NULL,
+    AjustePorcentaje DECIMAL(5,2) NOT NULL
 );
-
-ALTER TABLE PERSONAL.Guardaparques
-    ADD CONSTRAINT PK_Guardaparques PRIMARY KEY (ID_Guardaparque);
+ALTER TABLE Ventas.EntradaLinea ADD CONSTRAINT PK_EntradaLinea_EntradaLineaId PRIMARY KEY (EntradaLineaId);
 
 
--- ------------------------------------------------------------
---  Historial_Guardaparques
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS PERSONAL.Historial_Guardaparques;
-GO
-CREATE TABLE PERSONAL.Historial_Guardaparques (
-    ID_Historial INT NOT NULL,
-    ID_GuardaParque INT NULL,
-    ID_Parque INT NULL,
-    Fecha_Desde DATE NULL,
-    Fecha_Hasta DATE NULL
+IF OBJECT_ID('Ventas.ActividadLinea', 'U') IS NOT NULL DROP TABLE Ventas.ActividadLinea;
+CREATE TABLE Ventas.ActividadLinea (
+    ActividadLineaId INT IDENTITY(1,1) NOT NULL,
+    VentaId INT NOT NULL,
+    ActividadId INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario DECIMAL(19,4) NOT NULL,
+    Subtotal DECIMAL(19,4) NOT NULL
 );
-
-ALTER TABLE PERSONAL.Historial_Guardaparques
-    ADD CONSTRAINT PK_Historial_Guardaparques PRIMARY KEY (ID_Historial);
+ALTER TABLE Ventas.ActividadLinea ADD CONSTRAINT PK_ActividadLinea_ActividadLineaId PRIMARY KEY (ActividadLineaId);
 
 
--- ------------------------------------------------------------
---  Guias
--- ------------------------------------------------------------
-DROP TABLE IF EXISTS PERSONAL.Guias;
-GO
-CREATE TABLE PERSONAL.Guias (
-    ID_Guia INT NOT NULL,
-    Nombre VARCHAR(100) NULL,
-    Apellido VARCHAR(100) NULL,
-    DNI INT NULL,
-    Titulo VARCHAR(100) NULL,
-    Especialidad VARCHAR(100) NULL,
-    Vigencia_Autorizacion DATE NULL
+IF OBJECT_ID('Ventas.Entrada', 'U') IS NOT NULL DROP TABLE Ventas.Entrada;
+CREATE TABLE Ventas.Entrada (
+    EntradaId INT IDENTITY(1,1) NOT NULL,
+    EntradaLineaId INT NOT NULL,
+    Codigo DECIMAL(12,0) NOT NULL
 );
+ALTER TABLE Ventas.Entrada ADD CONSTRAINT PK_Entrada_EntradaId PRIMARY KEY (EntradaId);
+ALTER TABLE Ventas.Entrada ADD CONSTRAINT UQ_Entrada_Codigo UNIQUE (Codigo);
 
-ALTER TABLE PERSONAL.Guias
-    ADD CONSTRAINT PK_Guias PRIMARY KEY (ID_Guia);
+-- -----------------------------------------------------------------------------
+-- FOREIGN KEYS
+-- -----------------------------------------------------------------------------
 
+ALTER TABLE Parques.PrecioEntrada
+    ADD CONSTRAINT FK_PrecioEntrada_Parque_ParqueId 
+    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
 
--- ============================================================
---  FOREIGN KEYS
--- ============================================================
+ALTER TABLE Parques.Actividad
+    ADD CONSTRAINT FK_Actividad_Parque_ParqueId 
+    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
 
--- PARQUES.Parques
-ALTER TABLE PARQUES.Parques
-    ADD CONSTRAINT FK_Parques_TipoParque
-        FOREIGN KEY (ID_TipoParque) REFERENCES PARQUES.TiposParque (ID_TipoParque);
+ALTER TABLE Personal.TourGuia
+    ADD CONSTRAINT FK_TourGuia_Guia_GuiaId 
+    FOREIGN KEY (GuiaId) REFERENCES Personal.Guia(GuiaId),
+    CONSTRAINT FK_TourGuia_Actividad_ActividadId 
+    FOREIGN KEY (ActividadId) REFERENCES Parques.Actividad(ActividadId);
 
--- PERSONAL.Guardaparques
-ALTER TABLE PERSONAL.Guardaparques
-    ADD CONSTRAINT FK_Guardaparques_ParqueActual
-        FOREIGN KEY (ID_Parque_Actual) REFERENCES PARQUES.Parques (ID_Parque);
+ALTER TABLE Personal.Guardaparque
+    ADD CONSTRAINT FK_Guardaparque_Parque_ParqueId 
+    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
 
--- PERSONAL.Historial_Guardaparques
-ALTER TABLE PERSONAL.Historial_Guardaparques
-    ADD CONSTRAINT FK_Historial_Guardaparque
-        FOREIGN KEY (ID_GuardaParque) REFERENCES PERSONAL.Guardaparques (ID_Guardaparque);
+ALTER TABLE Concesiones.Concesion
+    ADD CONSTRAINT FK_Concesion_Parque_ParqueId 
+    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
 
-ALTER TABLE PERSONAL.Historial_Guardaparques
-    ADD CONSTRAINT FK_Historial_Parque
-        FOREIGN KEY (ID_Parque) REFERENCES PARQUES.Parques (ID_Parque);
+ALTER TABLE Concesiones.PagoCanon
+    ADD CONSTRAINT FK_PagoCanon_Concesion_ConcesionId 
+    FOREIGN KEY (ConcesionId) REFERENCES Concesiones.Concesion(ConcesionId);
 
--- ACTIVIDADES.Parque_Precio_Actividad
-ALTER TABLE ACTIVIDADES.Parque_Precio_Actividad
-    ADD CONSTRAINT FK_PPA_Parque
-        FOREIGN KEY (ID_Parque) REFERENCES PARQUES.Parques (ID_Parque);
+ALTER TABLE Ventas.Venta
+    ADD CONSTRAINT FK_Venta_Parque_ParqueId 
+    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId),
+    CONSTRAINT FK_Venta_Cliente_ClienteId 
+    FOREIGN KEY (ClienteId) REFERENCES Ventas.Cliente(ClienteId);
 
-ALTER TABLE ACTIVIDADES.Parque_Precio_Actividad
-    ADD CONSTRAINT FK_PPA_Actividad
-        FOREIGN KEY (ID_Actividad) REFERENCES ACTIVIDADES.Actividades (ID_Actividad);
+ALTER TABLE Ventas.EntradaLinea
+    ADD CONSTRAINT FK_EntradaLinea_Venta_VentaId 
+    FOREIGN KEY (VentaId) REFERENCES Ventas.Venta(VentaId),
+    CONSTRAINT FK_EntradaLinea_TipoEntrada_TipoEntradaId 
+    FOREIGN KEY (TipoEntradaId) REFERENCES Ventas.TipoEntrada(TipoEntradaId);
 
--- ACTIVIDADES.Tours_Guias
-ALTER TABLE ACTIVIDADES.Tours_Guias
-    ADD CONSTRAINT FK_ToursGuias_Parque
-        FOREIGN KEY (ID_Parque) REFERENCES PARQUES.Parques (ID_Parque);
+ALTER TABLE Ventas.ActividadLinea
+    ADD CONSTRAINT FK_ActividadLinea_Venta_VentaId 
+    FOREIGN KEY (VentaId) REFERENCES Ventas.Venta(VentaId),
+    CONSTRAINT FK_ActividadLinea_Actividad_ActividadId 
+    FOREIGN KEY (ActividadId) REFERENCES Parques.Actividad(ActividadId);
 
-ALTER TABLE ACTIVIDADES.Tours_Guias
-    ADD CONSTRAINT FK_ToursGuias_Actividad
-        FOREIGN KEY (ID_Actividad) REFERENCES ACTIVIDADES.Actividades (ID_Actividad);
+ALTER TABLE Ventas.Entrada
+    ADD CONSTRAINT FK_Entrada_EntradaLinea_EntradaLineaId 
+    FOREIGN KEY (EntradaLineaId) REFERENCES Ventas.EntradaLinea(EntradaLineaId);
 
-ALTER TABLE ACTIVIDADES.Tours_Guias
-    ADD CONSTRAINT FK_ToursGuias_Guia
-        FOREIGN KEY (ID_Guia) REFERENCES PERSONAL.Guias (ID_Guia);
+-- -----------------------------------------------------------------------------
+-- ÍNDICES
+-- -----------------------------------------------------------------------------
 
-ALTER TABLE ACTIVIDADES.Tours_Guias
-    ADD CONSTRAINT FK_ToursGuias_Horario
-        FOREIGN KEY (ID_Horario) REFERENCES ACTIVIDADES.Horarios_Permitidos (ID_Horario);
+CREATE NONCLUSTERED INDEX IX_Venta_FechaVenta 
+    ON Ventas.Venta(FechaVenta);
 
--- VENTAS.VentaEntrada_Cabecera
-ALTER TABLE VENTAS.VentaEntrada_Cabecera
-    ADD CONSTRAINT FK_VEC_Parque
-        FOREIGN KEY (ID_Parque) REFERENCES PARQUES.Parques (ID_Parque);
+CREATE NONCLUSTERED INDEX IX_Venta_ParqueId 
+    ON Ventas.Venta(ParqueId);
 
-ALTER TABLE VENTAS.VentaEntrada_Cabecera
-    ADD CONSTRAINT FK_VEC_FormaPago
-        FOREIGN KEY (ID_FormaPago) REFERENCES VENTAS.Formas_Pago (UniqueID);
+CREATE NONCLUSTERED INDEX IX_Venta_ClienteId 
+    ON Ventas.Venta(ClienteId);
 
--- VENTAS.VentaEntrada_Detalle
-ALTER TABLE VENTAS.VentaEntrada_Detalle
-    ADD CONSTRAINT FK_VED_Venta
-        FOREIGN KEY (ID_Venta) REFERENCES VENTAS.VentaEntrada_Cabecera (ID_Venta);
+CREATE NONCLUSTERED INDEX IX_EntradaLinea_VentaId 
+    ON Ventas.EntradaLinea(VentaId);
 
-ALTER TABLE VENTAS.VentaEntrada_Detalle
-    ADD CONSTRAINT FK_VED_Actividad
-        FOREIGN KEY (ID_Actividad) REFERENCES ACTIVIDADES.Actividades (ID_Actividad);
+CREATE NONCLUSTERED INDEX IX_ActividadLinea_VentaId 
+    ON Ventas.ActividadLinea(VentaId);
 
-ALTER TABLE VENTAS.VentaEntrada_Detalle
-    ADD CONSTRAINT FK_VED_TipoVisitante
-        FOREIGN KEY (ID_TipoVisitante) REFERENCES VENTAS.Tipos_Visitante (ID_TipoVisitante);
+CREATE NONCLUSTERED INDEX IX_PagoCanon_FechaPago 
+    ON Concesiones.PagoCanon(FechaPago);
 
--- CONCESIONES.Concesiones
-ALTER TABLE CONCESIONES.Concesiones
-    ADD CONSTRAINT FK_Concesiones_Parque
-        FOREIGN KEY (ID_Parque) REFERENCES PARQUES.Parques (ID_Parque);
+CREATE NONCLUSTERED INDEX IX_PagoCanon_ConcesionId 
+    ON Concesiones.PagoCanon(ConcesionId);
 
--- CONCESIONES.Pagos_Canon
-ALTER TABLE CONCESIONES.Pagos_Canon
-    ADD CONSTRAINT FK_PagosCanon_Concesion
-        FOREIGN KEY (ID_Concesion) REFERENCES CONCESIONES.Concesiones (ID_Concesion);
+CREATE NONCLUSTERED INDEX IX_Guardaparque_ParqueId 
+    ON Personal.Guardaparque(ParqueId);
+
+CREATE NONCLUSTERED INDEX IX_TourGuia_ActividadId 
+    ON Personal.TourGuia(ActividadId);
+
+CREATE NONCLUSTERED INDEX IX_TourGuia_GuiaId 
+    ON Personal.TourGuia(GuiaId);
