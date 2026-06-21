@@ -1,31 +1,17 @@
 /* ============================================================
 Universidad Nacional de La Matanza
 Bases de Datos Aplicada - 3641 - Comisión 2900
-Grupo: [Nº 1]
-Integrantes: 
-     
-     - Arenas Vlasco, Artin Leonel
- 
-     - Leguizamon Sarmiento, Juan Andrés
-     
+Grupo: 1
+Integrantes:
+     - Arenas Velasco, Artin Leonel
      - Rios, Marcos Adrían
-     
      - Romano, Jorge Dario
-Objetivo: Creacion inicial de la base, schemas, tablas, indices, constraints.
-Fecha:    14 de Junio 2026
+
+Fecha: 17/06/2026
+Objetivo: Creacion de tablas, indices y constraints.
 ============================================================ */
 
-IF DB_ID('GestionParquesNacionales') IS NULL
-    CREATE DATABASE GestionParquesNacionales;
-GO
-
 USE GestionParquesNacionales;
-GO
-
-IF SCHEMA_ID('Parques') IS NULL EXEC('CREATE SCHEMA Parques');
-IF SCHEMA_ID('Personal') IS NULL EXEC('CREATE SCHEMA Personal');
-IF SCHEMA_ID('Concesiones') IS NULL EXEC('CREATE SCHEMA Concesiones');
-IF SCHEMA_ID('Ventas') IS NULL EXEC('CREATE SCHEMA Ventas');
 GO
 
 -- -----------------------------------------------------------------------------
@@ -57,7 +43,6 @@ CREATE TABLE Parques.Parque (
     Nombre VARCHAR(100) NOT NULL,
     Ubicacion VARCHAR(250) NOT NULL,
     Superficie DECIMAL(18,2) NOT NULL,
-    UidExterno VARCHAR(100) NOT NULL,
     TipoParque CHAR(15) NOT NULL,
     Latitud DECIMAL(9,6) NOT NULL,
     Longitud DECIMAL(9,6) NOT NULL
