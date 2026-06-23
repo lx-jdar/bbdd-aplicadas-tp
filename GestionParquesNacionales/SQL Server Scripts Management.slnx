@@ -3,15 +3,16 @@
     <BuildType Name="Default" />
     <Platform Name="Default" />
   </Configurations>
-  <Folder Name="/00_Database/">
-    <File Path="CreateDatabase.sql" />
-    <File Path="SecondItem.sql" />
-    <File Path="../scripts/00_setup/ddbba.CreateDB.sql" />
+  <Folder Name="/00_setup/">
+    <File Path="config.sql" />
   </Folder>
-  <Folder Name="/01_Security/">
-    <File Path="Logins.sql" />
+  <Folder Name="/01_ddl/">
+    <File Path="../database/ddl/00_teardown.sql" />
+    <File Path="../database/ddl/01_base_esquemas.sql" />
+    <File Path="../database/ddl/02_tablas.sql" />
+    <File Path="../database/ddl/03_datos_iniciales.sql" />
   </Folder>
-  <Folder Name="/02_Storage/">
+  <Folder Name="/02_programabilidad/">
     <File Path="DBSchemas.sql" />
   </Folder>
   <Folder Name="/02_Storage/Indexes/">

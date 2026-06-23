@@ -10,16 +10,24 @@ Integrantes:
 Fecha: 17/06/2026
 Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
 ============================================================ */
-
 IF DB_ID('GestionParquesNacionales') IS NULL
     CREATE DATABASE GestionParquesNacionales;
 GO
 
-USE GestionParquesNacionales;
-GO
+IF DB_ID('GestionParquesNacionales') IS NOT NULL
+BEGIN
 
-IF SCHEMA_ID('Parques') IS NULL EXEC('CREATE SCHEMA Parques');
-IF SCHEMA_ID('Personal') IS NULL EXEC('CREATE SCHEMA Personal');
-IF SCHEMA_ID('Concesiones') IS NULL EXEC('CREATE SCHEMA Concesiones');
-IF SCHEMA_ID('Ventas') IS NULL EXEC('CREATE SCHEMA Ventas');
+    USE GestionParquesNacionales;
+
+    DROP SCHEMA IF EXISTS Parques;
+    DROP SCHEMA IF EXISTS Ventas;
+    DROP SCHEMA IF EXISTS Concesiones;
+    DROP SCHEMA IF EXISTS Personal;
+
+    EXEC('CREATE SCHEMA Parques');
+    EXEC('CREATE SCHEMA Personal');
+    EXEC('CREATE SCHEMA Concesiones');
+    EXEC('CREATE SCHEMA Ventas');
+
+END;
 GO
