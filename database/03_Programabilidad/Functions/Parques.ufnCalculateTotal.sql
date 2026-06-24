@@ -7,8 +7,6 @@ Integrantes:
      - Rios, Marcos Adrían
      - Romano, Jorge Dario
 
-Fecha: -- pendiente
-Objetivo: Carga inicial de datos (seed): parques, actividades, guias,
-          guardaparques, concesiones e historial de ventas requeridos
-          para los criterios de aceptacion del TP.
+Fecha: 17/06/2026
+Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
 ============================================================ */

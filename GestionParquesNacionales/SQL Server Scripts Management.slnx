@@ -3,50 +3,43 @@
     <BuildType Name="Default" />
     <Platform Name="Default" />
   </Configurations>
-  <Folder Name="/00_setup/">
+  <Folder Name="/00_Setup/">
     <File Path="config.sql" />
   </Folder>
-  <Folder Name="/01_ddl/">
-    <File Path="../database/ddl/00_teardown.sql" />
-    <File Path="../database/ddl/01_base_esquemas.sql" />
-    <File Path="../database/ddl/02_tablas.sql" />
-    <File Path="../database/ddl/03_datos_iniciales.sql" />
+  <Folder Name="/01_DDL/">
+    <File Path="../database/01_DDL/00_teardown.sql" />
+    <File Path="../database/01_DDL/01_base_esquemas.sql" />
+    <File Path="../database/01_DDL/02_tablas.sql" />
   </Folder>
-  <Folder Name="/02_programabilidad/">
-    <File Path="DBSchemas.sql" />
+  <Folder Name="/02_Securidad/">
+    <File Path="../database/02_Seguridad/Logins.sql" />
+    <File Path="../database/02_Seguridad/Permisos.sql" />
+    <File Path="../database/02_Seguridad/Roles.sql" />
+    <File Path="../database/02_Seguridad/Users.sql" /> 
   </Folder>
-  <Folder Name="/02_Storage/Indexes/">
-    <File Path="IndexH.sql" />
+  <Folder Name="/03_Programabilidad/" />
+  <Folder Name="/03_Programabilidad/Functions/">
+    <File Path="Parques.ufnCalculateTotal.sql" />
   </Folder>
-  <Folder Name="/02_Storage/Keys/">
-    <File Path="dbo.key_FKExample.sql" />
+  <Folder Name="/03_Programabilidad/Stored Procedures/">
+    <File Path="Parques.uspParqueCreate.sql" />
   </Folder>
-  <Folder Name="/02_Storage/Tables/">
-    <File Path="dbo.Example.sql" />
-  </Folder>
-  <Folder Name="/03_Programmability/" />
-  <Folder Name="/03_Programmability/Functions/">
-    <File Path="dbo.ufn_CalculateTotal.sql" />
-  </Folder>
-  <Folder Name="/03_Programmability/Stored Procedures/">
-    <File Path="dbo.usp_GetClient.sql" />
-  </Folder>
-  <Folder Name="/03_Programmability/Triggers/">
-    <File Path="dbo.trg_TriggerClient.sql" />
-  </Folder>
-  <Folder Name="/03_Programmability/Views/">
-    <File Path="dbo.vw_ClientOrders.sql" />
+  <Folder Name="/03_Programabilidad/Views/">
+    <File Path="Parques.vwClientOrders.sql" />
   </Folder>
   <Folder Name="/04_Data/">
-    <File Path="SeedData.sql" />
+    <File Path="../database/04_Data/datos_iniciales.sql" />
   </Folder>
   <Folder Name="/05_Jobs/">
     <File Path="SQLAgentJobs.sql" />
   </Folder>
-  <Folder Name="/06_Migrations/">
-    <File Path="001_InitialSchema.sql" />
-  </Folder>
-  <Folder Name="/07_Utilities/">
-    <File Path="Scripts de mantenimiento.sql" />
+  <Folder Name="/06_Imports/" />
+  <Folder Name="/07_Reportes/" />
+  <Folder Name="/08_Testing/" />
+
+  <Folder Name="/Solution Items/">
+    <File Path="RUN_ALL.sql" />
+    <File Path="README.md" />
   </Folder>
 </Solution>
+ 

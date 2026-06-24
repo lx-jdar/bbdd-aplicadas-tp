@@ -7,7 +7,6 @@ Integrantes:
      - Rios, Marcos Adrían
      - Romano, Jorge Dario
 
-Fecha: -- pendiente
-Objetivo: Stored procedures de Alta, Baja y Modificacion (ABM)
-          para todas las entidades del sistema.
+Fecha: 17/06/2026
+Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
 ============================================================ */

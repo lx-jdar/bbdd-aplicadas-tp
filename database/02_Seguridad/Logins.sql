@@ -7,7 +7,6 @@ Integrantes:
      - Rios, Marcos Adrían
      - Romano, Jorge Dario
 
-Fecha: -- pendiente
-Objetivo: Aplicacion de cifrado a datos sensibles del sistema
-          (columnas, claves de cifrado, modificacion de SPs afectados).
+Fecha: 17/06/2026
+Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
 ============================================================ */

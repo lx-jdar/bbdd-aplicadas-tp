@@ -8,7 +8,7 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: -- pendiente
-Objetivo: Stored procedures de logica de negocio (venta de entradas,
-          registro de actividades, asignacion de guias, gestion de
-          concesiones, importacion de datos externos).
+Objetivo: Carga inicial de datos (seed): parques, actividades, guias,
+          guardaparques, concesiones e historial de ventas requeridos
+          para los criterios de aceptacion del TP.
 ============================================================ */

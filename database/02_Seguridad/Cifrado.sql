@@ -7,7 +7,6 @@ Integrantes:
      - Rios, Marcos Adrían
      - Romano, Jorge Dario
 
-Fecha: -- pendiente
-Objetivo: Creacion de roles de seguridad y asignacion de permisos
-          granulares por perfil (admin, importador, consultas).
+Fecha: 17/06/2026
+Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
 ============================================================ */
