@@ -226,7 +226,7 @@ ALTER TABLE Concesiones.PagoCanon
     FOREIGN KEY (ConcesionId) REFERENCES Concesiones.Concesion(ConcesionId);
 
 ALTER TABLE Ventas.Venta
-    CONSTRAINT FK_Venta_Visitante_VisitanteId
+    ADD CONSTRAINT FK_Venta_Visitante_VisitanteId
     FOREIGN KEY (VisitanteId) REFERENCES Ventas.Visitante(VisitanteId);
 
 ALTER TABLE Ventas.LineaVenta
@@ -253,9 +253,6 @@ ALTER TABLE Ventas.Entrada
 
 CREATE NONCLUSTERED INDEX IX_Venta_FechaVenta
     ON Ventas.Venta(FechaVenta);
-
-CREATE NONCLUSTERED INDEX IX_Venta_ParqueId
-    ON Ventas.Venta(ParqueId);
 
 CREATE NONCLUSTERED INDEX IX_Venta_VisitanteId
     ON Ventas.Venta(VisitanteId);
