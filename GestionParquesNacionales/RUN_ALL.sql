@@ -21,7 +21,7 @@ PRINT 'Creando base de datos...'
 	:r ../database/01_DDL/02_tablas.sql
 
 -- 04: Data
-	:r ../database/04_Data/datos_iniciales.sql
+	--:r ../database/04_Data/datos_iniciales.sql
 
 -- 02: Programabilidad
 	

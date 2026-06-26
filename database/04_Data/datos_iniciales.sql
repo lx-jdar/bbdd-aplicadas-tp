@@ -16,147 +16,284 @@ Objetivo: Carga inicial de datos (seed): parques, actividades, guias,
 Orden de carga de datos iniciales (seed) para cumplir con los criterios de aceptación del TP:
 
       1. Parques.Parque
-      2. Personal.Guia
-      3. Ventas.TipoEntrada
-      4. Ventas.Cliente
-      5. Concesiones.Concesion
-      6. Personal.Guardaparque
-      7. Parques.Actividad
-      8. Personal.TourGuia
-      9. Parques.PrecioEntrada
-     10. Concesiones.PagoCanon
-     11. Ventas.Entrada
-     12. Ventas.Venta
-     13. Ventas.EntradaLinea
-     14. Ventas.ActividadLinea
-
+      2. Concesiones.Concesion
+      3. Personal.Guardaparque
+      4. Personal.Guia
+      5. Ventas.Entrada
+      6. Parques.Actividad
+      7. Ventas.TipoVisitante
+      8. Ventas.Visitante
+      9. Concesiones.PagoCanon
+     10. Ventas.Venta
+     11. Ventas.EntradaLinea
+     12. Ventas.ActividadLinea
+     13. Personal.TourGuia
 */
 
 USE GestionParquesNacionales;
 GO
 
--- 1. Parques.Parque - Base de todo el esquema de parques
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud)
-VALUES
-('Iguazu', 'Misiones, Argentina', 67200.00, 'Nacional', -25.695278, -54.436667),
-('Nahuel Huapi', 'Rio Negro y Neuquen, Argentina', 717261.00, 'Nacional', -41.133333, -71.566667),
-('Talampaya', 'La Rioja, Argentina', 213800.00, 'Nacional', -29.800000, -67.833333),
-('Sierra de la Ventana', 'Buenos Aires, Argentina', 42000.00, 'Provincial', -38.016667, -61.966667),
-('Ribera Norte', 'San Isidro, Buenos Aires, Argentina', 12.00, 'Reserva', -34.468500, -58.488600);
+-- =============================================
+-- DESHABILITAR CONSTRAINTS
+-- =============================================
+ALTER TABLE Ventas.LineaActividad NOCHECK CONSTRAINT ALL;
+ALTER TABLE Ventas.LineaVenta NOCHECK CONSTRAINT ALL;
+ALTER TABLE Ventas.Venta NOCHECK CONSTRAINT ALL;
+ALTER TABLE Concesiones.PagoCanon NOCHECK CONSTRAINT ALL;
+ALTER TABLE Personal.TourGuia NOCHECK CONSTRAINT ALL;
+ALTER TABLE Parques.Actividad NOCHECK CONSTRAINT ALL;
+ALTER TABLE Ventas.Entrada NOCHECK CONSTRAINT ALL;
+ALTER TABLE Personal.Guardaparque NOCHECK CONSTRAINT ALL;
+ALTER TABLE Concesiones.Concesion NOCHECK CONSTRAINT ALL;
+GO
 
--- 2. Concesiones.Concesion (depende de Parque)
-INSERT INTO Concesiones.Concesion (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, EsActiva)
-VALUES
-(1, 30712345001, 'Selva Turismo SA', 'Gastronomia', '2026-01-01', '2028-12-31', 1500000.0000, 1),
-(2, 30712345002, 'Andes Aventura SRL', 'Excursiones', '2025-06-01', '2027-05-31', 1250000.0000, 1),
-(3, 30712345003, 'Canyon Servicios SA', 'Transporte interno', '2026-03-01', '2029-02-28', 980000.0000, 1),
-(4, 30712345004, 'Ventana Food Truck SAS', 'Kiosco', '2026-02-15', '2027-02-14', 420000.0000, 1),
-(5, 30712345005, 'EcoTienda Norte Coop', 'Tienda de recuerdos', '2026-04-01', '2028-03-31', 275000.0000, 1);
+-- =============================================
+-- BORRAR DATOS (Orden inverso a inserción)
+-- =============================================
+PRINT '--- Limpiando datos ---';
 
--- 3. Personal.Guardaparque (depende de Parque)
-INSERT INTO Personal.Guardaparque (ParqueId, Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, EsActivo)
-VALUES
-(1, 'Lucia', 'Mendez', 30111222, '2020-01-10', NULL, 1),
-(2, 'Martin', 'Quiroga', 28999111, '2019-05-21', NULL, 1),
-(3, 'Paula', 'Sosa', 31555333, '2021-03-17', NULL, 1),
-(4, 'Diego', 'Farias', 33444777, '2022-08-01', NULL, 1),
-(5, 'Carla', 'Nuñez', 29888555, '2018-11-12', NULL, 1);
+DELETE FROM Ventas.LineaActividad;
+DELETE FROM Ventas.LineaVenta;
+DELETE FROM Ventas.Venta;
+DELETE FROM Concesiones.PagoCanon;
+DELETE FROM Personal.TourGuia;
+DELETE FROM Parques.Actividad;
+DELETE FROM Ventas.Entrada;
+DELETE FROM Personal.Guardaparque;
+DELETE FROM Concesiones.Concesion;
+DELETE FROM Personal.Guia;
+DELETE FROM Ventas.Visitante;
+DELETE FROM Ventas.TipoVisitante;
+DELETE FROM Parques.Parque;
 
--- 4. Personal.Guia - Guías independientes
+PRINT 'Datos eliminados exitosamente.';
+GO
+
+-- =============================================
+-- RESETEAR CONTADORES DE IDENTITY A 1
+-- =============================================
+PRINT '--- Reseteando contadores de IDENTITY ---';
+
+DBCC CHECKIDENT ('Parques.Parque', RESEED, 0);
+DBCC CHECKIDENT ('Concesiones.Concesion', RESEED, 0);
+DBCC CHECKIDENT ('Personal.Guardaparque', RESEED, 0);
+DBCC CHECKIDENT ('Personal.Guia', RESEED, 0);
+DBCC CHECKIDENT ('Parques.Actividad', RESEED, 0);
+DBCC CHECKIDENT ('Ventas.TipoVisitante', RESEED, 0);
+DBCC CHECKIDENT ('Ventas.Visitante', RESEED, 0);
+DBCC CHECKIDENT ('Concesiones.PagoCanon', RESEED, 0);
+DBCC CHECKIDENT ('Ventas.Entrada', RESEED, 0);
+DBCC CHECKIDENT ('Ventas.Venta', RESEED, 0);
+DBCC CHECKIDENT ('Ventas.LineaVenta', RESEED, 0);
+DBCC CHECKIDENT ('Ventas.LineaActividad', RESEED, 0);
+DBCC CHECKIDENT ('Personal.TourGuia', RESEED, 0);
+
+PRINT 'Contadores reseteados exitosamente.';
+GO
+
+-- =============================================
+-- REABILITAR CONSTRAINTS
+-- =============================================
+ALTER TABLE Ventas.LineaActividad WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Ventas.LineaVenta WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Ventas.Venta WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Concesiones.PagoCanon WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Personal.TourGuia WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Parques.Actividad WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Ventas.Entrada WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Personal.Guardaparque WITH CHECK CHECK CONSTRAINT ALL;
+ALTER TABLE Concesiones.Concesion WITH CHECK CHECK CONSTRAINT ALL;
+GO
+
+-- =============================================
+-- 1. INSERCIÓN: Parques.Parque
+-- =============================================
+PRINT '--- Insertando datos en Parques.Parque ---';
+
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+VALUES 
+	('Parque Nacional Iguazú', 'Misiones, Argentina', 67620.00, 'Nacional', -25.594519, -54.557416, 1),
+	('Parque Nacional Los Glaciares', 'Santa Cruz, Argentina', 494162.00, 'Nacional', -50.332917, -73.063889, 1),
+	('Parque Nacional Bariloche', 'Río Negro, Argentina', 736000.00, 'Nacional', -41.126222, -71.635556, 1),
+	('Parque Provincial Aconcagua', 'Mendoza, Argentina', 71610.00, 'Provincial', -32.653611, -70.011111, 1),
+	('Reserva Natural Iberá', 'Corrientes, Argentina', 784900.00, 'Reserva', -28.256667, -58.150000, 1);
+GO
+
+-- =============================================
+-- 2. INSERCIÓN: Concesiones.Concesion
+-- =============================================
+PRINT '--- Insertando datos en Concesiones.Concesion ---';
+
+INSERT INTO Concesiones.Concesion (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, Activo)
+VALUES 
+	(1, 20123456789, 'Cataratas Tours SRL', 'Tours Guiados', '2025-01-01', '2028-12-31', 75000.00, 1),
+	(1, 27987654321, 'Hospedaje Iguazú Premium', 'Hospedaje', '2025-03-15', '2029-03-14', 95000.50, 1),
+	(2, 23111222333, 'Glaciares Adventure', 'Actividades Extremas', '2024-06-01', '2027-05-31', 120000.00, 1),
+	(3, 20555666777, 'Bariloche Camping', 'Campamento', '2025-07-01', '2030-06-30', 45000.00, 1),
+	(4, 27888999000, 'Aconcagua Expediciones', 'Trekking', '2025-02-01', '2028-01-31', 85000.75, 1),
+	(5, 20111122333, 'Iberá Safari Tours', 'Fotografía y Observación de Fauna', '2025-05-01', '2029-04-30', 65000.00, 1);
+GO
+
+-- =============================================
+-- 3. INSERCIÓN: Personal.Guardaparque
+-- =============================================
+PRINT '--- Insertando datos en Personal.Guardaparque ---';
+
+INSERT INTO Personal.Guardaparque (Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, Activo, ParqueId)
+VALUES 
+	('Juan', 'Pérez', 30123456, '2020-01-15', NULL, 1, 1),
+	('María', 'González', 32987654, '2021-03-20', NULL, 1, 1),
+	('Carlos', 'López', 28555666, '2019-06-10', NULL, 1, 2),
+	('Ana', 'Martínez', 33222333, '2022-02-01', NULL, 1, 3),
+	('Roberto', 'Fernández', 29444555, '2020-09-15', NULL, 1, 4);
+GO
+
+-- =============================================
+-- 4. INSERCIÓN: Personal.Guia
+-- =============================================
+PRINT '--- Insertando datos en Personal.Guia ---';
+
 INSERT INTO Personal.Guia (Nombre, Apellido, Dni, Titulo, Especialidad, VigenciaAutorizacion)
-VALUES
-('Sofia', 'Aguirre', 27666111, 'Tecnica en Turismo', 'Avistaje de aves', '2027-12-31'),
-('Javier', 'Luna', 28777222, 'Licenciado en Turismo', 'Senderismo', '2028-06-30'),
-('Valentina', 'Roldan', 29988333, 'Guia de Turismo', 'Geologia', '2027-09-30'),
-('Nicolas', 'Herrera', 31111444, 'Guia Profesional', 'Historia natural', '2028-03-31'),
-('Camila', 'Torres', 32222555, 'Tecnica Universitaria', 'Educacion ambiental', '2027-11-30');
+VALUES 
+	('Diego', 'Sánchez', 34111222, 'Licenciado en Turismo', 'Tours de Naturaleza', '2027-12-31'),
+	('Paula', 'Rodríguez', 35333444, 'Guía Profesional', 'Escalada y Montaña', '2028-06-30'),
+	('Fernando', 'Acosta', 31555666, 'Especialista Ambiental', 'Conservación', '2026-11-15'),
+	('Sofía', 'Medina', 36777888, 'Guía Turístico', 'Historia y Cultura', '2029-03-20'),
+	('Maximiliano', 'Castillo', 32999000, 'Instrutor de Actividades', 'Deportes Extremos', '2028-09-10');
+GO
 
--- 5. Ventas.TipoEntrada - Tipos de entrada independientes.
-INSERT INTO Ventas.TipoEntrada (Nombre, AjustePorcentaje)
-VALUES
-('General', 0.00),
-('Menor', -50.00),
-('Jubilado', -30.00),
-('Residente', -20.00),
-('Extranjero', 25.00);
+-- =============================================
+-- 5. INSERCIÓN: Parques.Actividad
+-- =============================================
+PRINT '--- Insertando datos en Parques.Actividad ---';
 
--- 6. Parques.Actividad (depende de Parque)
 INSERT INTO Parques.Actividad (ParqueId, Nombre, Tipo, DuracionMinutos, CupoMaximo, Valor)
-VALUES
-(1, 'Sendero Garganta', 'Caminata', 120, 30, 15000.00),
-(2, 'Circuito Lacustre', 'Navegacion', 180, 25, 28000.00),
-(3, 'Cañon Rojo', 'Trekking', 150, 20, 22000.00),
-(4, 'Miradores Serranos', 'Caminata', 90, 35, 12000.00),
-(5, 'Humedales Guiados', 'Educativa', 75, 15, 9000.00);
+VALUES 
+	(1, 'Tour Cataratas Brasileño', 'Senderismo', 120, 30, 50000.00),
+	(1, 'Tour Garganta del Diablo', 'Senderismo', 180, 25, 65000.00),
+	(2, 'Trekking Perito Moreno', 'Trekking', 360, 15, 120000.00),
+	(3, 'Escalada Circuito Chico', 'Escalada', 240, 8, 95000.00),
+	(4, 'Ascenso Aconcagua', 'Montañismo', 1440, 5, 250000.00),
+	(5, 'Safari Fotográfico Iberá', 'Fotografía', 300, 20, 80000.00);
+GO
 
--- 7. Personal.TourGuia (depende de Guia y Actividad)
-INSERT INTO Personal.TourGuia (GuiaId, ActividadId, HorarioInicio, HorarioFin)
-VALUES
-(1, 1, '08:00:00', '10:00:00'),
-(2, 2, '10:30:00', '13:30:00'),
-(3, 3, '09:00:00', '11:30:00'),
-(4, 4, '14:00:00', '15:30:00'),
-(5, 5, '16:00:00', '17:15:00');
+-- =============================================
+-- 6. INSERCIÓN: Ventas.TipoVisitante
+-- =============================================
+PRINT '--- Insertando datos en Ventas.TipoVisitante ---';
 
--- 8. Parques.PrecioEntrada (depende de Parque)
-INSERT INTO Parques.PrecioEntrada (ParqueId, Precio)
-VALUES
-(1, 12000.000000),
-(2, 15000.000000),
-(3, 11000.000000),
-(4, 8000.000000),
-(5, 5000.000000);
+INSERT INTO Ventas.TipoVisitante (Nombre, PorcentajeDescuento)
+VALUES 
+	('Adulto', 0.00),
+	('Estudiante', 25.00),
+	('Jubilado', 30.00),
+	('Niño', 50.00),
+	('Discapacitado', 50.00);
+GO
 
--- 9. Ventas.Cliente - Clientes independientes
-INSERT INTO Ventas.Cliente (NombreApellido, Dni)
-VALUES
-('Ana Gomez', 25999111),
-('Bruno Perez', 27111222),
-('Cecilia Diaz', 28333444),
-('Damian Ruiz', 29444555),
-('Elena Castro', 30555666);
+-- =============================================
+-- 7. INSERCIÓN: Ventas.Visitante
+-- =============================================
+PRINT '--- Insertando datos en Ventas.Visitante ---';
 
--- 10. Concesiones.PagoCanon (depende de Concesion)
+INSERT INTO Ventas.Visitante (NombreApellido, Dni)
+VALUES 
+	('Juan García', 40123456),
+	('María López', 41234567),
+	('Carlos Rodríguez', 42345678),
+	('Ana Martínez', 43456789),
+	('Pedro Sánchez', 44567890);
+GO
+
+-- =============================================
+-- 8. INSERCIÓN: Ventas.Entrada
+-- =============================================
+
+PRINT '--- Insertando datos en Ventas.Entrada ---';
+
+INSERT INTO Ventas.Entrada (ParqueId, Nombre, Descripcion, Precio, Fecha)
+VALUES 
+	(1, 'Entrada General Iguazú', 'Acceso completo a todas las cataratas', 60000.00, GETDATE()),
+	(1, 'Entrada Reducida Iguazú', 'Para menores y discapacitados', 30000.00, GETDATE()),
+	(2, 'Entrada General Glaciares', 'Acceso al Perito Moreno', 80000.00, GETDATE()),
+	(3, 'Entrada General Bariloche', 'Acceso a circuitos principales', 70000.00, GETDATE()),
+	(4, 'Entrada General Aconcagua', 'Acceso a zonas permitidas', 50000.00, GETDATE());
+GO
+
+-- =============================================
+-- 9. INSERCIÓN: Ventas.Venta
+-- =============================================
+PRINT '--- Insertando datos en Ventas.Venta ---';
+
+INSERT INTO Ventas.Venta (VisitanteId, FormaDePago, PuntoVenta, NumeroTicket, FechaVenta, TotalFacturado)
+VALUES 
+	(1, 'EFECTIVO', 1, 100001, '2026-06-20 10:30:00', 170000.00), -- El monto total es = Es el total de LineaVenta y LineaActividad para la venta 1
+	(2, 'TARJETA', 2, 100002, '2026-06-21 14:15:00', 110000.00),
+	(3, 'TRANSFERENCIA', 1, 100003, '2026-06-22 09:45:00', 280000.00),
+	(4, 'EFECTIVO', 3, 100004, '2026-06-23 16:20:00', 130000.00),
+	(5, 'TARJETA', 2, 100005, '2026-06-24 11:00:00', 130000.00);
+GO
+
+-- =============================================
+-- 10. INSERCIÓN: Ventas.LineaVenta
+-- =============================================
+PRINT '--- Insertando datos en Ventas.LineaVenta ---';
+
+INSERT INTO Ventas.LineaVenta (VentaId, EntradaId, TipoVisitanteId, Cantidad, PrecioUnitario, Subtotal, Descuento)
+VALUES 
+	(1, 1, 1, 2, 60000.00, 120000.00, 0.00),
+	(2, 1, 2, 1, 60000.00, 60000.00, 25.00),
+	(2, 2, 4, 1, 30000.00, 30000.00, 50.00),
+	(3, 3, 1, 2, 80000.00, 160000.00, 0.00),
+	(4, 4, 3, 1, 70000.00, 70000.00, 30.00),
+	(5, 5, 1, 1, 50000.00, 50000.00, 0.00),
+	(5, 2, 4, 1, 30000.00, 30000.00, 50.00);
+GO
+
+-- =============================================
+-- 12. INSERCIÓN: Concesiones.PagoCanon
+-- =============================================
+PRINT '--- Insertando datos en Concesiones.PagoCanon ---';
+
 INSERT INTO Concesiones.PagoCanon (ConcesionId, FechaPago, PeriodoMes, PeriodoAnio, MontoAbonado)
-VALUES
-(1, '2026-05-05T10:00:00', 5, 2026, 1500000.0000),
-(2, '2026-05-06T10:30:00', 5, 2026, 1250000.0000),
-(3, '2026-05-07T11:00:00', 5, 2026, 980000.0000),
-(4, '2026-05-08T11:30:00', 5, 2026, 420000.0000),
-(5, '2026-05-09T12:00:00', 5, 2026, 275000.0000);
+VALUES 
+	(1, '2026-06-05 09:00:00', 6, 2026, 75000.00),
+	(1, '2026-05-05 10:30:00', 5, 2026, 75000.00),
+	(2, '2026-06-10 14:15:00', 6, 2026, 95000.50),
+	(3, '2026-06-08 11:45:00', 6, 2026, 120000.00),
+	(4, '2026-06-12 15:20:00', 6, 2026, 45000.00),
+	(5, '2026-06-15 08:30:00', 6, 2026, 85000.75);
+GO
 
--- 11. Ventas.Entrada (depende de Parque)
-INSERT INTO Ventas.Entrada (ParqueId, Codigo, Descripcion)
-VALUES
-(1, 100000000001, 'Entrada general diaria - Iguazu'),
-(2, 100000000002, 'Entrada general diaria - Nahuel Huapi'),
-(3, 100000000003, 'Entrada general diaria - Talampaya'),
-(4, 100000000004, 'Entrada general diaria - Sierra de la Ventana'),
-(5, 100000000005, 'Entrada general diaria - Ribera Norte');
+-- =============================================
+-- 13. INSERCIÓN: Ventas.LineaActividad
+-- =============================================
+PRINT '--- Insertando datos en Ventas.LineaActividad ---';
 
--- 12. Ventas.Venta (depende de Parque y Cliente)
-INSERT INTO Ventas.Venta (ParqueId, ClienteId, FormaPago, PuntoVenta, NumeroTicket, FechaVenta, TotalFacturado)
-VALUES
-(1, 1, 'EFECTIVO', 1, 100001, '2026-06-01T09:15:00', 39000.0000),
-(2, 2, 'TARJETA', 1, 100002, '2026-06-02T10:20:00', 71000.0000),
-(3, 3, 'TRANSFERENCIA', 1, 100003, '2026-06-03T11:25:00', 55000.0000),
-(4, 4, 'TARJETA', 2, 200001, '2026-06-04T12:30:00', 30000.0000),
-(5, 5, 'EFECTIVO', 2, 200002, '2026-06-05T13:35:00', 19000.0000);
+INSERT INTO Ventas.LineaActividad (VentaId, ActividadId, Cantidad, PrecioUnitario, Subtotal)
+VALUES 
+	(1, 1, 1, 50000.00, 50000.00),
+	(2, 1, 1, 50000.00, 50000.00),
+	(3, 3, 1, 120000.00, 120000.00),
+	(4, 4, 1, 95000.00, 95000.00),
+	(5, 2, 1, 65000.00, 65000.00);
+GO
 
--- 13. Ventas.EntradaLinea (depende de Venta y TipoEntrada)
-INSERT INTO Ventas.EntradaLinea (VentaId, TipoEntradaId, EntradaId, Cantidad, PrecioUnitario, Subtotal, AjustePorcentaje)
-VALUES
-(1, 1, 1, 2, 12000.0000, 24000.0000, 0.00),
-(2, 5, 2, 2, 18750.0000, 37500.0000, 25.00),
-(3, 3, 3, 3, 7700.0000, 23100.0000, -30.00),
-(4, 4, 4, 2, 6400.0000, 12800.0000, -20.00),
-(5, 2, 5, 2, 2500.0000, 5000.0000, -50.00);
+-- =============================================
+-- 14. INSERCIÓN: Personal.TourGuia
+-- =============================================
+PRINT '--- Insertando datos en Personal.TourGuia ---';
 
--- 14. Ventas.ActividadLinea (depende de Venta y Actividad)
-INSERT INTO Ventas.ActividadLinea (VentaId, ActividadId, Cantidad, PrecioUnitario, Subtotal)
-VALUES
-(1, 1, 1, 15000.0000, 15000.0000),
-(2, 2, 1, 28000.0000, 28000.0000),
-(3, 3, 1, 22000.0000, 22000.0000),
-(4, 4, 1, 12000.0000, 12000.0000),
-(5, 5, 1, 9000.0000, 9000.0000);
+INSERT INTO Personal.TourGuia (ParqueId, ActividadId, GuiaId, HorarioInicio, HorarioFin)
+VALUES 
+	(1, 1, 1, '09:00:00', '11:00:00'),
+	(1, 2, 1, '14:00:00', '17:00:00'),
+	(2, 3, 2, '08:00:00', '14:00:00'),
+	(3, 4, 2, '10:00:00', '14:00:00'),
+	(4, 5, 3, '06:00:00', '23:59:59');
+GO
+
+PRINT '';
+PRINT '===============================================';
+PRINT 'Inserción de datos iniciales completada.';
+PRINT '===============================================';
