@@ -169,6 +169,7 @@ CREATE TABLE Ventas.Venta (
     FechaVenta     DATETIME          NOT NULL,
     TotalFacturado DECIMAL(18,6)     NOT NULL
 );
+ALTER TABLE Ventas.Venta ADD CONSTRAINT PK_Venta_VentaId PRIMARY KEY (VentaId);
 ALTER TABLE Ventas.Venta ADD CONSTRAINT CK_Venta_FormaDePago CHECK (FormaDePago IN ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA'));
 ALTER TABLE Ventas.Venta ADD CONSTRAINT UQ_Venta_PuntoVenta_NumeroTicket UNIQUE (PuntoVenta, NumeroTicket);
 
