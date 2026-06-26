@@ -17,7 +17,6 @@ GO
 -- -----------------------------------------------------------------------------
 -- DROP DE FOREIGN KEYS (Necesario para evitar errores al hacer DROP de las tablas)
 -- -----------------------------------------------------------------------------
-IF OBJECT_ID('Parques.FK_PrecioEntrada_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Parques.PrecioEntrada DROP CONSTRAINT FK_PrecioEntrada_Parque_ParqueId;
 IF OBJECT_ID('Parques.FK_Actividad_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Parques.Actividad DROP CONSTRAINT FK_Actividad_Parque_ParqueId;
 IF OBJECT_ID('Personal.FK_TourGuia_Guia_GuiaId', 'F') IS NOT NULL ALTER TABLE Personal.TourGuia DROP CONSTRAINT FK_TourGuia_Guia_GuiaId;
 IF OBJECT_ID('Personal.FK_TourGuia_Actividad_ActividadId', 'F') IS NOT NULL ALTER TABLE Personal.TourGuia DROP CONSTRAINT FK_TourGuia_Actividad_ActividadId;
@@ -25,7 +24,6 @@ IF OBJECT_ID('Personal.FK_TourGuia_Parque_ParqueId', 'F') IS NOT NULL ALTER TABL
 IF OBJECT_ID('Personal.FK_Guardaparque_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Personal.Guardaparque DROP CONSTRAINT FK_Guardaparque_Parque_ParqueId;
 IF OBJECT_ID('Concesiones.FK_Concesion_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Concesiones.Concesion DROP CONSTRAINT FK_Concesion_Parque_ParqueId;
 IF OBJECT_ID('Concesiones.FK_PagoCanon_Concesion_ConcesionId', 'F') IS NOT NULL ALTER TABLE Concesiones.PagoCanon DROP CONSTRAINT FK_PagoCanon_Concesion_ConcesionId;
-IF OBJECT_ID('Ventas.FK_Venta_Parque_ParqueId', 'F') IS NOT NULL ALTER TABLE Ventas.Venta DROP CONSTRAINT FK_Venta_Parque_ParqueId;
 IF OBJECT_ID('Ventas.FK_Venta_Visitante_VisitanteId', 'F') IS NOT NULL ALTER TABLE Ventas.Venta DROP CONSTRAINT FK_Venta_Visitante_VisitanteId;
 IF OBJECT_ID('Ventas.FK_LineaVenta_Venta_VentaId', 'F') IS NOT NULL ALTER TABLE Ventas.LineaVenta DROP CONSTRAINT FK_LineaVenta_Venta_VentaId;
 IF OBJECT_ID('Ventas.FK_LineaVenta_Entrada_EntradaId', 'F') IS NOT NULL ALTER TABLE Ventas.LineaVenta DROP CONSTRAINT FK_LineaVenta_Entrada_EntradaId;
@@ -120,15 +118,6 @@ CREATE TABLE Personal.TourGuia (
 );
 ALTER TABLE Personal.TourGuia ADD CONSTRAINT PK_TourGuia_TourGuiaId PRIMARY KEY (TourGuiaId);
 
-IF OBJECT_ID('Parques.PrecioEntrada', 'U') IS NOT NULL DROP TABLE Parques.PrecioEntrada;
-CREATE TABLE Parques.PrecioEntrada (
-    PrecioEntradaId INT IDENTITY(1,1) NOT NULL,
-    ParqueId        INT               NOT NULL,
-    Precio          DECIMAL(18,6)     NOT NULL,
-    FechaDesde      DATE              NOT NULL
-);
-ALTER TABLE Parques.PrecioEntrada ADD CONSTRAINT PK_PrecioEntrada_PrecioEntradaId PRIMARY KEY (PrecioEntradaId);
-
 IF OBJECT_ID('Ventas.TipoVisitante', 'U') IS NOT NULL DROP TABLE Ventas.TipoVisitante;
 CREATE TABLE Ventas.TipoVisitante (
     TipoVisitanteId     INT IDENTITY(1,1) NOT NULL,
@@ -173,7 +162,6 @@ ALTER TABLE Ventas.Entrada ADD CONSTRAINT DF_Entrada_Fecha DEFAULT GETDATE() FOR
 IF OBJECT_ID('Ventas.Venta', 'U') IS NOT NULL DROP TABLE Ventas.Venta;
 CREATE TABLE Ventas.Venta (
     VentaId        INT IDENTITY(1,1) NOT NULL,
-    ParqueId       INT               NOT NULL,
     VisitanteId    INT               NOT NULL,
     FormaDePago    CHAR(15)          NOT NULL,
     PuntoVenta     INT               NOT NULL,
@@ -181,7 +169,6 @@ CREATE TABLE Ventas.Venta (
     FechaVenta     DATETIME          NOT NULL,
     TotalFacturado DECIMAL(18,6)     NOT NULL
 );
-ALTER TABLE Ventas.Venta ADD CONSTRAINT PK_Venta_VentaId PRIMARY KEY (VentaId);
 ALTER TABLE Ventas.Venta ADD CONSTRAINT CK_Venta_FormaDePago CHECK (FormaDePago IN ('EFECTIVO', 'TARJETA', 'TRANSFERENCIA'));
 ALTER TABLE Ventas.Venta ADD CONSTRAINT UQ_Venta_PuntoVenta_NumeroTicket UNIQUE (PuntoVenta, NumeroTicket);
 
@@ -213,10 +200,6 @@ ALTER TABLE Ventas.LineaActividad ADD CONSTRAINT PK_LineaActividad_LineaActivida
 -- FOREIGN KEYS
 -- -----------------------------------------------------------------------------
 
-ALTER TABLE Parques.PrecioEntrada
-    ADD CONSTRAINT FK_PrecioEntrada_Parque_ParqueId
-    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
-
 ALTER TABLE Parques.Actividad
     ADD CONSTRAINT FK_Actividad_Parque_ParqueId
     FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
@@ -242,8 +225,6 @@ ALTER TABLE Concesiones.PagoCanon
     FOREIGN KEY (ConcesionId) REFERENCES Concesiones.Concesion(ConcesionId);
 
 ALTER TABLE Ventas.Venta
-    ADD CONSTRAINT FK_Venta_Parque_ParqueId
-    FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId),
     CONSTRAINT FK_Venta_Visitante_VisitanteId
     FOREIGN KEY (VisitanteId) REFERENCES Ventas.Visitante(VisitanteId);
 
