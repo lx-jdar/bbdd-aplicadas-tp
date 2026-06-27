@@ -24,6 +24,9 @@
   <Folder Name="/03_Programabilidad/Stored Procedures/">
     <File Path="Parques.uspParqueCreate.sql" />
     <File Path="../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionCreate.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionPagoRegister.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/Personal.uspTourAsignarGuia.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/Personal.uspGuardaparqueAsignarParque.sql" />
   </Folder>
   <Folder Name="/03_Programabilidad/Views/">
     <File Path="Parques.vwClientOrders.sql" />
@@ -36,8 +39,11 @@
   </Folder>
   <Folder Name="/06_Imports/" />
   <Folder Name="/07_Reportes/" />
-  <Folder Name="/08_Testing/" >
+  <Folder Name="/08_Testing/">
     <File Path="../database/07_Testing/test_Concesiones.uspConcesionCreate.sql" />
+    <File Path="../database/07_Testing/test_Concesiones.uspConcesionPagoRegister.sql" />
+    <File Path="../database/07_Testing/test_Personal.uspTourAsignarGuia.sql" />
+    <File Path="../database/07_Testing/test_Personal.uspGuardaparqueAsignarParque.sql" />
   </Folder>
 
   <Folder Name="/Solution Items/">

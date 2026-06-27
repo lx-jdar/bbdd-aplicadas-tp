@@ -283,19 +283,23 @@ GO
 PRINT '';
 PRINT '--- PASO 4: Verificación de Concesiones Creadas ---';
 
+BEGIN TRANSACTION;
+
 SELECT 
-	ConcesionId,
-	ParqueId,
-	Cuit,
-	EmpresaConcesionaria,
-	TipoActividad,
-	FechaInicio,
-	FechaFin,
-	CanonMensual,
-	Activo
+    ConcesionId,
+    ParqueId,
+    Cuit,
+    EmpresaConcesionaria,
+    TipoActividad,
+    FechaInicio,
+    FechaFin,
+    CanonMensual,
+    Activo
 FROM Concesiones.Concesion
-WHERE ParqueId = (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
+WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
 ORDER BY ConcesionId;
+
+COMMIT;
 GO
 
 -- =============================================
@@ -304,22 +308,26 @@ GO
 PRINT '';
 PRINT '--- PASO 5: Limpieza de Datos de Prueba ---';
 
+BEGIN TRANSACTION;
+
 -- Eliminar concesiones creadas en el parque de prueba
 DELETE FROM Concesiones.PagoCanon
 WHERE ConcesionId IN (
-	SELECT ConcesionId FROM Concesiones.Concesion
-	WHERE ParqueId = (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
+    SELECT ConcesionId FROM Concesiones.Concesion
+    WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
 );
 
 DELETE FROM Concesiones.Concesion
-WHERE ParqueId = (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing');
+WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing');
 
 -- Eliminar el parque de prueba
 DELETE FROM Parques.Parque
 WHERE Nombre = 'Parque de Prueba Testing';
 
-PRINT 'Limpieza completada. Datos de prueba eliminados.';
+COMMIT;
 GO
+
+PRINT 'Limpieza completada. Datos de prueba eliminados.';
 
 PRINT '';
 PRINT '===============================================';
