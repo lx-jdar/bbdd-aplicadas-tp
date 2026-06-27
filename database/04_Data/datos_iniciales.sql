@@ -21,13 +21,14 @@ Orden de carga de datos iniciales (seed) para cumplir con los criterios de acept
       4. Personal.Guia
       5. Ventas.Entrada
       6. Parques.Actividad
-      7. Ventas.TipoVisitante
-      8. Ventas.Visitante
-      9. Concesiones.PagoCanon
-     10. Ventas.Venta
-     11. Ventas.EntradaLinea
-     12. Ventas.ActividadLinea
-     13. Personal.TourGuia
+	  7. Personal.TourGuia
+      8. Ventas.TipoVisitante
+      9. Ventas.Visitante
+      10. Concesiones.PagoCanon
+     11. Ventas.Venta
+     12. Ventas.EntradaLinea
+     13. Ventas.ActividadLinea
+     
 */
 
 USE GestionParquesNacionales;
@@ -192,7 +193,21 @@ VALUES
 GO
 
 -- =============================================
--- 7. INSERCIÓN: Ventas.Visitante
+-- 7. INSERCIÓN: Personal.TourGuia
+-- =============================================
+PRINT '--- Insertando datos en Personal.TourGuia ---';
+
+INSERT INTO Personal.TourGuia (ParqueId, ActividadId, GuiaId, HorarioInicio, HorarioFin)
+VALUES 
+	(1, 1, 1, '09:00:00', '11:00:00'),
+	(1, 2, 1, '14:00:00', '17:00:00'),
+	(2, 3, 2, '08:00:00', '14:00:00'),
+	(3, 4, 2, '10:00:00', '14:00:00'),
+	(4, 5, 3, '06:00:00', '23:59:59');
+GO
+
+-- =============================================
+-- 8. INSERCIÓN: Ventas.Visitante
 -- =============================================
 PRINT '--- Insertando datos en Ventas.Visitante ---';
 
@@ -206,7 +221,7 @@ VALUES
 GO
 
 -- =============================================
--- 8. INSERCIÓN: Ventas.Entrada
+-- 9. INSERCIÓN: Ventas.Entrada
 -- =============================================
 
 PRINT '--- Insertando datos en Ventas.Entrada ---';
@@ -221,7 +236,7 @@ VALUES
 GO
 
 -- =============================================
--- 9. INSERCIÓN: Ventas.Venta
+-- 10. INSERCIÓN: Ventas.Venta
 -- =============================================
 PRINT '--- Insertando datos en Ventas.Venta ---';
 
@@ -235,7 +250,7 @@ VALUES
 GO
 
 -- =============================================
--- 10. INSERCIÓN: Ventas.LineaVenta
+-- 11. INSERCIÓN: Ventas.LineaVenta
 -- =============================================
 PRINT '--- Insertando datos en Ventas.LineaVenta ---';
 
@@ -277,20 +292,6 @@ VALUES
 	(3, 3, 1, 120000.00, 120000.00),
 	(4, 4, 1, 95000.00, 95000.00),
 	(5, 2, 1, 65000.00, 65000.00);
-GO
-
--- =============================================
--- 14. INSERCIÓN: Personal.TourGuia
--- =============================================
-PRINT '--- Insertando datos en Personal.TourGuia ---';
-
-INSERT INTO Personal.TourGuia (ParqueId, ActividadId, GuiaId, HorarioInicio, HorarioFin)
-VALUES 
-	(1, 1, 1, '09:00:00', '11:00:00'),
-	(1, 2, 1, '14:00:00', '17:00:00'),
-	(2, 3, 2, '08:00:00', '14:00:00'),
-	(3, 4, 2, '10:00:00', '14:00:00'),
-	(4, 5, 3, '06:00:00', '23:59:59');
 GO
 
 PRINT '';

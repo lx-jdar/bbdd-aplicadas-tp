@@ -22,13 +22,14 @@ PRINT 'Creando base de datos...'
 
 -- 04: Data
 	--:r ../database/04_Data/datos_iniciales.sql
-
--- 02: Programabilidad
+	
+-- 05: Programabilidad
 	
 	-- Funciones
 	--:r ../database/ddl/05_funciones.sql
 	
 	-- Procedimientos Almacenados
+	:r "../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionCreate.sql"
 	--:r ../database/ddl/03_sp_abm.sql
 	--:r ../database/ddl/04_sp_negocio.sql
 	
@@ -44,4 +45,6 @@ PRINT 'Creando base de datos...'
 	-- Cifrado
 	--:r ../database/ddl/08_cifrado.sql
 
+-- 07: Testing
+	:r "../database/07_Testing/test_Concesiones.uspConcesionCreate.sql"
 PRINT 'Secuencia de Generación Finalizada...'
