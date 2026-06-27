@@ -27,6 +27,8 @@
     <File Path="../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionPagoRegister.sql" />
     <File Path="../database/03_Programabilidad/Stored Procedures/Personal.uspTourAsignarGuia.sql" />
     <File Path="../database/03_Programabilidad/Stored Procedures/Personal.uspGuardaparqueAsignarParque.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/Ventas.uspVentaRegistrar.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql" />
   </Folder>
   <Folder Name="/03_Programabilidad/Views/">
     <File Path="Parques.vwClientOrders.sql" />
@@ -44,6 +46,7 @@
     <File Path="../database/07_Testing/test_Concesiones.uspConcesionPagoRegister.sql" />
     <File Path="../database/07_Testing/test_Personal.uspTourAsignarGuia.sql" />
     <File Path="../database/07_Testing/test_Personal.uspGuardaparqueAsignarParque.sql" />
+    <File Path="../database/07_Testing/test_Ventas.uspVentaRegistrar.sql" />
   </Folder>
 
   <Folder Name="/Solution Items/">
