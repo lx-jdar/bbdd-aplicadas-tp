@@ -88,7 +88,7 @@ CREATE TABLE Personal.Guia (
     Nombre               VARCHAR(100)      NOT NULL,
     Apellido             VARCHAR(100)      NOT NULL,
     Dni                  INT               NOT NULL,
-    Titulo               VARCHAR(100)      NOT NULL,
+    Titulo               VARCHAR(100)      NULL,
     Especialidad         VARCHAR(100)      NOT NULL,
     VigenciaAutorizacion DATE              NOT NULL
 );
@@ -106,6 +106,8 @@ CREATE TABLE Parques.Actividad (
     Valor            DECIMAL(16,6)     NOT NULL
 );
 ALTER TABLE Parques.Actividad ADD CONSTRAINT PK_Actividad_ActividadId PRIMARY KEY (ActividadId);
+ALTER TABLE Parques.Actividad ADD CONSTRAINT CK_Actividad_Tipo CHECK (Tipo IN ('Atracciones gratuitas', 'Atracciones pagas', 'Tours guiados'));
+
 
 IF OBJECT_ID('Personal.TourGuia', 'U') IS NOT NULL DROP TABLE Personal.TourGuia;
 CREATE TABLE Personal.TourGuia (
