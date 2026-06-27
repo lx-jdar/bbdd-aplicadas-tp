@@ -4,7 +4,7 @@
     <Platform Name="Default" />
   </Configurations>
   <Folder Name="/00_Setup/">
-    <File Path="config.sql" />
+    <File Path="../database/00_Setup/config.sql" />
   </Folder>
   <Folder Name="/01_DDL/">
     <File Path="../database/01_DDL/00_teardown.sql" />
@@ -23,6 +23,7 @@
   </Folder>
   <Folder Name="/03_Programabilidad/Stored Procedures/">
     <File Path="Parques.uspParqueCreate.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionCreate.sql" />
   </Folder>
   <Folder Name="/03_Programabilidad/Views/">
     <File Path="Parques.vwClientOrders.sql" />
@@ -35,7 +36,9 @@
   </Folder>
   <Folder Name="/06_Imports/" />
   <Folder Name="/07_Reportes/" />
-  <Folder Name="/08_Testing/" />
+  <Folder Name="/08_Testing/" >
+    <File Path="../database/07_Testing/test_Concesiones.uspConcesionCreate.sql" />
+  </Folder>
 
   <Folder Name="/Solution Items/">
     <File Path="RUN_ALL.sql" />
