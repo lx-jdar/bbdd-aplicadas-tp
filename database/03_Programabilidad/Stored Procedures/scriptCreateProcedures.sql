@@ -18,16 +18,16 @@ GO
     Tests:
     
     --Prueba de todas las excepciones
-    exec Parques.uspParqueCreate '', '',0, '', 0, 0
+    exec Parques.uspParqueAlta '', '',0, '', 0, 0
             
     --Creacion Exitosa (con el valor activo por default)
-    exec Parques.uspParqueCreate 'nombrePrueba1', 'ubicacionPrueba1',0, 'Nacional', 0, 0
-    
+    exec Parques.uspParqueAlta 'nombrePrueba1', 'ubicacionPrueba1',0, 'Nacional', 0, 0
+
     --Creacion Exitosa (creandolo como inactivo)
-    exec Parques.uspParqueCreate 'nombrePrueba2', 'ubicacionPrueba2',0, 'Nacional', 0, 0, 0
+    exec Parques.uspParqueAlta 'nombrePrueba2', 'ubicacionPrueba2',0, 'Nacional', 0, 0, 0
 */
 
-    CREATE OR ALTER PROCEDURE Parques.uspParqueCreate(
+    CREATE OR ALTER PROCEDURE Parques.uspParqueAlta(
         @Nombre        VARCHAR(100),
         @Ubicacion     VARCHAR(250),
         @Superficie    DECIMAL(12,2),
@@ -68,7 +68,7 @@ GO
             ;THROW 50001, @ERRORES, 1;
         END
 
-        INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+        INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
         VALUES (@Nombre, @Ubicacion, @Superficie, @TipoParque, @Latitud, @Longitud, @Activo)
 
         --Devuelvo el ID del registro insertado
@@ -82,13 +82,13 @@ GO
     Tests:
     
     --Prueba de todas las excepciones
-    exec Parques.usrParqueUpdate 1000, '', '',0, '', 0, 0
-            
+    exec Parques.uspParqueModificar 1000, '', '',0, '', 0, 0
+
     --Update Exitosa
-    exec Parques.usrParqueUpdate 2, 'nombrePrueba1', 'ubicacionPrueba1',0, 'Nacional', 0, 0
+    exec Parques.uspParqueModificar 2, 'nombrePrueba1', 'ubicacionPrueba1',0, 'Nacional', 0, 0
 
 */
-    CREATE OR ALTER PROCEDURE Parques.usrParqueUpdate(
+    CREATE OR ALTER PROCEDURE Parques.uspParqueModificar(
         @ParqueID      INT,
         @Nombre        VARCHAR(100),
         @Ubicacion     VARCHAR(250),
@@ -147,17 +147,17 @@ GO
     Tests:
     
     --Prueba de todas las excepciones
-    exec Parques.usrParqueDelete 1000
-            
+    exec Parques.uspParqueBaja 1000
+
     --Update Exitosa
-    exec Parques.usrParqueDelete 2
+    exec Parques.uspParqueBaja 2
 
 */
 
     -- Elimina el parque o lo inactiva haciendo un soft delete.
     -- Si el parque no tiene registros en otras tablas es eliminado, sino
     -- el parque no se elimina porque puede tener ventas asociadas y debe conservarse la info
-    CREATE OR ALTER PROCEDURE Parques.usrParqueDelete(
+    CREATE OR ALTER PROCEDURE Parques.uspParqueBaja(
         @ParqueID INT
     )
     AS
@@ -171,7 +171,7 @@ GO
             SET @ERRORES += 'El registro que se quiere eliminar no existe.' + CHAR(13) + CHAR(10);
         END
 
-        IF (SELECT Activo FROM Parques.Parque WHERE ParqueId = @ParqueID) = 0
+        IF (SELECT EsActivo FROM Parques.Parque WHERE ParqueId = @ParqueID) = 0
         BEGIN
             SET @ERRORES += 'El registro que se quiere eliminar ya esta inactivo.' + CHAR(13) + CHAR(10);
         END
@@ -192,7 +192,7 @@ GO
             WHERE ParqueId = @ParqueID
 
         UPDATE Parques.Parque
-        SET Activo = 0
+        SET EsActivo = 0
         WHERE ParqueId = @ParqueID
 
     END
@@ -204,13 +204,13 @@ GO
     Tests:
     
     --Prueba de todas las excepciones
-    exec Parques.usrActividadCreate 1000, '','',-23,-3,-1
-            
+    exec Parques.uspActividadAlta 1000, '','',-23,-3,-1
+
     --Create Exitosa
-    exec Parques.usrActividadCreate 2, 'Treking', 'Atracciones gratuitas', 30, 25, 0
+    exec Parques.uspActividadAlta 2, 'Treking', 'Atracciones gratuitas', 30, 25, 0
 
 */
-    CREATE OR ALTER PROCEDURE Parques.usrActividadCreate(
+    CREATE OR ALTER PROCEDURE Parques.uspActividadAlta(
         @ParqueId         INT,
         @Nombre           VARCHAR(100),
         @Tipo             VARCHAR(30),
@@ -275,13 +275,13 @@ GO
     Tests:
     
     --Prueba de todas las excepciones
-    exec Personal.usrGuiaCreate '', '', 0, NULL, '', '20250601'
-            
+    exec Personal.uspGuiaAlta '', '', 0, NULL, '', '20250601'
+
     --Create Exitosa
-    exec Personal.usrGuiaCreate 'Pepe', 'Ramirez', 15798254, NULL, 'Paseos de montaña', '20250601'
+    exec Personal.uspGuiaAlta 'Pepe', 'Ramirez', 15798254, NULL, 'Paseos de montaña', '20250601'
 
 */
-    CREATE OR ALTER PROCEDURE Personal.usrGuiaCreate(
+    CREATE OR ALTER PROCEDURE Personal.uspGuiaAlta(
         @Nombre               VARCHAR(100),
         @Apellido             VARCHAR(100),
         @Dni                  INT,
@@ -332,14 +332,14 @@ GO
     Tests:
     
     --Prueba de todas las excepciones
-    exec Personal.usrGuardaparqueCreate '', '', 0, '20260501', '20250101', 0, 1000
-            
+    exec Personal.uspGuardaparqueAlta '', '', 0, '20260501', '20250101', 0, 1000
+
     --Create Exitosa
-    exec Personal.usrGuardaparqueCreate 'Juan', 'Ramirez', 23485024, '20250601', '20300601', 1, 2
+    exec Personal.uspGuardaparqueAlta 'Juan', 'Ramirez', 23485024, '20250601', '20300601', 1, 2
 
 */
 
-    CREATE OR ALTER PROCEDURE Personal.usrGuardaparqueCreate(
+    CREATE OR ALTER PROCEDURE Personal.uspGuardaparqueAlta(
         @Nombre              VARCHAR(100),
         @Apellido            VARCHAR(100),
         @Dni                 INT,
@@ -389,7 +389,7 @@ GO
             ;THROW 50001, @ERRORES, 1;
         END
 
-        INSERT INTO Personal.Guardaparque(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, Activo, ParqueId)
+        INSERT INTO Personal.Guardaparque(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, EsActivo, ParqueId)
         VALUES (@Nombre, @Apellido, @Dni, @FechaIngresoSistema, @FechaEgresoSistema, @Activo, @ParqueId);
 
     END

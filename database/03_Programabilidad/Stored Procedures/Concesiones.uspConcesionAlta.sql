@@ -15,7 +15,7 @@ Validaciones:
 	- Insertar concesión con canon mensual
 
 Uso:
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = 1,
 		@Cuit = 20123456789,
 		@EmpresaConcesionaria = 'Empresa ABC',
@@ -28,7 +28,7 @@ Uso:
 USE GestionParquesNacionales;
 GO
 
-CREATE OR ALTER PROCEDURE Concesiones.uspConcesionCreate
+CREATE OR ALTER PROCEDURE Concesiones.uspConcesionAlta
     @ParqueId INT,
     @Cuit BIGINT,
     @EmpresaConcesionaria VARCHAR(150),
@@ -51,7 +51,7 @@ BEGIN
         IF NOT EXISTS (
             SELECT 1 
             FROM Parques.Parque 
-            WHERE ParqueId = @ParqueId AND Activo = 1
+            WHERE ParqueId = @ParqueId AND EsActivo = 1
         )
         BEGIN
             --RAISERROR('Debug error, parque no existe', 0, 1) WITH NOWAIT;
@@ -109,7 +109,7 @@ BEGIN
         -- INSERT
         -- =============================================
         INSERT INTO Concesiones.Concesion 
-            (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, Activo)
+            (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, EsActivo)
         VALUES 
             (@ParqueId, @Cuit, @EmpresaConcesionaria, @TipoActividad, @FechaInicio, @FechaFin, @CanonMensual, 1);
 
@@ -135,4 +135,4 @@ BEGIN
 END;
 GO
 
-PRINT 'Stored Procedure Concesiones.uspConcesionCreate creado exitosamente.';
+PRINT 'Stored Procedure Concesiones.uspConcesionAlta creado exitosamente.';

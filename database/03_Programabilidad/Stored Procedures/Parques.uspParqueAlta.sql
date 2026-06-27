@@ -8,5 +8,5 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: 17/06/2026
-Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
+Objetivo: Store Procedure ABM para dar de alta un nuevo parque nacional.
 ============================================================ */

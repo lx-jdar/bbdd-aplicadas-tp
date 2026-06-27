@@ -23,7 +23,7 @@ Nota:
 USE GestionParquesNacionales;
 GO
 
-CREATE OR ALTER PROCEDURE Concesiones.uspConcesionPagoRegister
+CREATE OR ALTER PROCEDURE Concesiones.uspRegistrarPagoCanon
 	@ConcesionId INT,
 	@FechaPago DATETIME = NULL,
 	@PeriodoMes INT,
@@ -50,7 +50,7 @@ BEGIN
 			SELECT 1
 			FROM Concesiones.Concesion
 			WHERE ConcesionId = @ConcesionId
-			  AND Activo = 1
+			  AND EsActivo = 1
 		)
 		BEGIN
 			SET @MensajeError = 'La concesión con ID ' + CAST(@ConcesionId AS NVARCHAR(10)) + ' no existe o no está activa.';
@@ -114,4 +114,4 @@ BEGIN
 END;
 GO
 
-PRINT 'Stored Procedure Concesiones.uspConcesionPagoRegister creado exitosamente.';
+PRINT 'Stored Procedure Concesiones.uspRegistrarPagoCanon creado exitosamente.';

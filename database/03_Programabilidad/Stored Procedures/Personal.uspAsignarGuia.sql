@@ -19,7 +19,7 @@ Validaciones:
 USE GestionParquesNacionales;
 GO
 
-CREATE OR ALTER PROCEDURE Personal.uspTourAsignarGuia
+CREATE OR ALTER PROCEDURE Personal.uspAsignarGuia
 	@ParqueId INT,
 	@ActividadId INT,
 	@GuiaId INT,
@@ -40,7 +40,7 @@ BEGIN
 			SELECT 1
 			FROM Parques.Parque
 			WHERE ParqueId = @ParqueId
-			  AND Activo = 1
+			  AND EsActivo = 1
 		)
 		BEGIN
 			SET @MensajeError = 'El parque con ID ' + CAST(@ParqueId AS NVARCHAR(10)) + ' no existe o no está activo.';
@@ -126,4 +126,4 @@ BEGIN
 END;
 GO
 
-PRINT 'Stored Procedure Personal.uspTourAsignarGuia creado exitosamente.';
+PRINT 'Stored Procedure Personal.uspAsignarGuia creado exitosamente.';

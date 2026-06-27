@@ -17,7 +17,7 @@ Acciones:
 USE GestionParquesNacionales;
 GO
 
-CREATE OR ALTER PROCEDURE Personal.uspGuardaparqueAsignarParque
+CREATE OR ALTER PROCEDURE Personal.uspAsignarGuardaparque
 	@GuardaparqueIdActual INT,
 	@ParqueIdNuevo INT,
 	@FechaAsignacion DATE = NULL,
@@ -43,7 +43,7 @@ BEGIN
 			SELECT 1
 			FROM Personal.Guardaparque
 			WHERE GuardaparqueId = @GuardaparqueIdActual
-			  AND Activo = 1
+			  AND EsActivo = 1
 			  AND FechaEgresoSistema IS NULL
 		)
 		BEGIN
@@ -58,7 +58,7 @@ BEGIN
 			SELECT 1
 			FROM Parques.Parque
 			WHERE ParqueId = @ParqueIdNuevo
-			  AND Activo = 1
+			  AND EsActivo = 1
 		)
 		BEGIN
 			SET @MensajeError = 'El parque destino con ID ' + CAST(@ParqueIdNuevo AS NVARCHAR(10)) + ' no existe o no está activo.';
@@ -94,9 +94,9 @@ BEGIN
 		-- =============================================
 		UPDATE Personal.Guardaparque
 		SET FechaEgresoSistema = @FechaAsignacion,
-			Activo = 0
+			EsActivo = 0
 		WHERE GuardaparqueId = @GuardaparqueIdActual
-		  AND Activo = 1
+		  AND EsActivo = 1
 		  AND FechaEgresoSistema IS NULL;
 
 		IF @@ROWCOUNT = 0
@@ -108,7 +108,7 @@ BEGIN
 		-- PASO 2: Insertar nueva asignación con fecha
 		-- =============================================
 		INSERT INTO Personal.Guardaparque
-			(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, Activo, ParqueId)
+			(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, EsActivo, ParqueId)
 		SELECT
 			Nombre,
 			Apellido,
@@ -136,4 +136,4 @@ BEGIN
 END;
 GO
 
-PRINT 'Stored Procedure Personal.uspGuardaparqueAsignarParque creado exitosamente.';
+PRINT 'Stored Procedure Personal.uspAsignarGuardaparque creado exitosamente.';

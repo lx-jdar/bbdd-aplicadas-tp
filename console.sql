@@ -47,11 +47,11 @@ CREATE TABLE Parques.Parque (
     TipoParque    VARCHAR(15)       NOT NULL,
     Latitud       DECIMAL(9,6)      NOT NULL,
     Longitud      DECIMAL(9,6)      NOT NULL,
-    EsActivo      BIT               NOT NULL
+    Activo        BIT               NOT NULL
 );
 ALTER TABLE Parques.Parque ADD CONSTRAINT PK_Parque_ParqueId PRIMARY KEY (ParqueId);
 ALTER TABLE Parques.Parque ADD CONSTRAINT CK_Parque_TipoParque CHECK (TipoParque IN ('Nacional', 'Provincial', 'Municipal', 'Reserva'));
-ALTER TABLE Parques.Parque ADD CONSTRAINT DF_Parque_EsActivo DEFAULT 1 FOR EsActivo;
+ALTER TABLE Parques.Parque ADD CONSTRAINT DF_Parque_Activo DEFAULT 1 FOR Activo;
 
 IF OBJECT_ID('Concesiones.Concesion', 'U') IS NOT NULL DROP TABLE Concesiones.Concesion;
 CREATE TABLE Concesiones.Concesion (
@@ -63,10 +63,10 @@ CREATE TABLE Concesiones.Concesion (
     FechaInicio          DATE              NOT NULL,
     FechaFin             DATE              NOT NULL,
     CanonMensual         DECIMAL(18,6)     NOT NULL,
-    EsActivo             BIT               NOT NULL
+    Activo               BIT               NOT NULL
 );
 ALTER TABLE Concesiones.Concesion ADD CONSTRAINT PK_Concesion_ConcesionId PRIMARY KEY (ConcesionId);
-ALTER TABLE Concesiones.Concesion ADD CONSTRAINT DF_Concesion_EsActivo DEFAULT 1 FOR EsActivo;
+ALTER TABLE Concesiones.Concesion ADD CONSTRAINT DF_Concesion_Activo DEFAULT 1 FOR Activo;
 
 IF OBJECT_ID('Personal.Guardaparque', 'U') IS NOT NULL DROP TABLE Personal.Guardaparque;
 CREATE TABLE Personal.Guardaparque (
@@ -76,11 +76,11 @@ CREATE TABLE Personal.Guardaparque (
     Dni                 INT               NOT NULL,
     FechaIngresoSistema DATE              NOT NULL,
     FechaEgresoSistema  DATE              NULL,
-    EsActivo            BIT               NOT NULL,
+    Activo              BIT               NOT NULL,
     ParqueId            INT               NOT NULL
 );
 ALTER TABLE Personal.Guardaparque ADD CONSTRAINT PK_Guardaparque_GuardaparqueId PRIMARY KEY (GuardaparqueId);
-ALTER TABLE Personal.Guardaparque ADD CONSTRAINT DF_Guardaparque_EsActivo DEFAULT 1 FOR EsActivo;
+ALTER TABLE Personal.Guardaparque ADD CONSTRAINT DF_Guardaparque_Activo DEFAULT 1 FOR Activo;
 
 IF OBJECT_ID('Personal.Guia', 'U') IS NOT NULL DROP TABLE Personal.Guia;
 CREATE TABLE Personal.Guia (

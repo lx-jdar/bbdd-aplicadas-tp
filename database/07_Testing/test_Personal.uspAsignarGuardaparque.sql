@@ -8,7 +8,7 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: 27/06/2026
-Objetivo: Testing de Personal.uspGuardaparqueAsignarParque.
+Objetivo: Testing de Personal.uspAsignarGuardaparque.
           Crea parque(s) y guardaparque de prueba, ejecuta casos válidos
           e inválidos, y limpia los datos al finalizar.
 ============================================================ */
@@ -19,7 +19,7 @@ GO
 SET NOCOUNT ON;
 
 PRINT '===============================================';
-PRINT 'INICIO DE TESTS: Personal.uspGuardaparqueAsignarParque';
+PRINT 'INICIO DE TESTS: Personal.uspAsignarGuardaparque';
 PRINT '===============================================';
 
 DECLARE @NombreParque1 VARCHAR(100) = 'Parque Prueba Guardaparque 1';
@@ -53,19 +53,19 @@ WHERE Nombre IN (@NombreParque1, @NombreParque2, @NombreParque3, @NombreParqueIn
 PRINT '';
 PRINT '--- PASO 1: Creando parques de prueba ---';
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParque1, 'Ubicación Test 1', 1000.00, 'Nacional', -35.101010, -65.101010, 1);
 SET @ParqueId1 = SCOPE_IDENTITY();
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParque2, 'Ubicación Test 2', 1100.00, 'Nacional', -35.202020, -65.202020, 1);
 SET @ParqueId2 = SCOPE_IDENTITY();
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParque3, 'Ubicación Test 3', 1200.00, 'Nacional', -35.303030, -65.303030, 1);
 SET @ParqueId3 = SCOPE_IDENTITY();
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParqueInactivo, 'Ubicación Test Inactivo', 900.00, 'Nacional', -35.404040, -65.404040, 0);
 SET @ParqueIdInactivo = SCOPE_IDENTITY();
 
@@ -78,7 +78,7 @@ PRINT '';
 PRINT '--- PASO 2: Creando guardaparque de prueba ---';
 
 INSERT INTO Personal.Guardaparque
-	(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, Activo, ParqueId)
+	(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, EsActivo, ParqueId)
 VALUES
 	('Guardaparque', 'Prueba', 38999111, '2026-01-01', NULL, 1, @ParqueId1);
 
@@ -97,7 +97,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 1: Reasignar de Parque 1 a Parque 2';
 PRINT 'Resultado esperado: Éxito';
 
-EXEC Personal.uspGuardaparqueAsignarParque
+EXEC Personal.uspAsignarGuardaparque
 	@GuardaparqueIdActual = @GuardaparqueIdActual,
 	@ParqueIdNuevo = @ParqueId2,
 	@FechaAsignacion = '2026-02-01',
@@ -110,7 +110,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 2: Reasignar de Parque 2 a Parque 3';
 PRINT 'Resultado esperado: Éxito';
 
-EXEC Personal.uspGuardaparqueAsignarParque
+EXEC Personal.uspAsignarGuardaparque
 	@GuardaparqueIdActual = @GuardaparqueIdActual,
 	@ParqueIdNuevo = @ParqueId3,
 	@FechaAsignacion = '2026-03-01',
@@ -123,7 +123,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 3: Reasignar de Parque 3 a Parque 1';
 PRINT 'Resultado esperado: Éxito';
 
-EXEC Personal.uspGuardaparqueAsignarParque
+EXEC Personal.uspAsignarGuardaparque
 	@GuardaparqueIdActual = @GuardaparqueIdActual,
 	@ParqueIdNuevo = @ParqueId1,
 	@FechaAsignacion = '2026-04-01',
@@ -142,7 +142,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 1: Guardaparque inexistente';
 PRINT 'Resultado esperado: Error por guardaparque inválido';
 BEGIN TRY
-	EXEC Personal.uspGuardaparqueAsignarParque
+	EXEC Personal.uspAsignarGuardaparque
 		@GuardaparqueIdActual = 999999,
 		@ParqueIdNuevo = @ParqueId2,
 		@FechaAsignacion = '2026-05-01',
@@ -156,7 +156,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 2: Parque destino inexistente';
 PRINT 'Resultado esperado: Error por parque inválido';
 BEGIN TRY
-	EXEC Personal.uspGuardaparqueAsignarParque
+	EXEC Personal.uspAsignarGuardaparque
 		@GuardaparqueIdActual = @GuardaparqueIdActual,
 		@ParqueIdNuevo = 999999,
 		@FechaAsignacion = '2026-05-01',
@@ -170,7 +170,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 3: Parque destino inactivo';
 PRINT 'Resultado esperado: Error por parque no activo';
 BEGIN TRY
-	EXEC Personal.uspGuardaparqueAsignarParque
+	EXEC Personal.uspAsignarGuardaparque
 		@GuardaparqueIdActual = @GuardaparqueIdActual,
 		@ParqueIdNuevo = @ParqueIdInactivo,
 		@FechaAsignacion = '2026-05-01',
@@ -184,7 +184,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 4: Parque destino igual al actual';
 PRINT 'Resultado esperado: Error por mismo parque';
 BEGIN TRY
-	EXEC Personal.uspGuardaparqueAsignarParque
+	EXEC Personal.uspAsignarGuardaparque
 		@GuardaparqueIdActual = @GuardaparqueIdActual,
 		@ParqueIdNuevo = @ParqueId1,
 		@FechaAsignacion = '2026-05-01',
@@ -198,7 +198,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 5: Fecha asignación anterior a ingreso actual';
 PRINT 'Resultado esperado: Error por fecha inconsistente';
 BEGIN TRY
-	EXEC Personal.uspGuardaparqueAsignarParque
+	EXEC Personal.uspAsignarGuardaparque
 		@GuardaparqueIdActual = @GuardaparqueIdActual,
 		@ParqueIdNuevo = @ParqueId2,
 		@FechaAsignacion = '2026-03-15',
@@ -212,7 +212,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 6: Guardaparque no activo (histórico)';
 PRINT 'Resultado esperado: Error por asignación no activa';
 BEGIN TRY
-	EXEC Personal.uspGuardaparqueAsignarParque
+	EXEC Personal.uspAsignarGuardaparque
 		@GuardaparqueIdActual = @GuardaparqueIdInicial,
 		@ParqueIdNuevo = @ParqueId2,
 		@FechaAsignacion = '2026-05-01',
@@ -235,7 +235,7 @@ SELECT
 	Dni,
 	FechaIngresoSistema,
 	FechaEgresoSistema,
-	Activo,
+	EsActivo,
 	ParqueId
 FROM Personal.Guardaparque
 WHERE Dni = 38999111
@@ -255,5 +255,5 @@ WHERE ParqueId IN (@ParqueId1, @ParqueId2, @ParqueId3, @ParqueIdInactivo);
 
 PRINT 'Limpieza completada.';
 PRINT '===============================================';
-PRINT 'FIN DE TESTS: Personal.uspGuardaparqueAsignarParque';
+PRINT 'FIN DE TESTS: Personal.uspAsignarGuardaparque';
 PRINT '===============================================';

@@ -8,7 +8,7 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: 27/06/2026
-Objetivo: Testing de Concesiones.uspConcesionPagoRegister.
+Objetivo: Testing de Concesiones.uspRegistrarPagoCanon.
           Crea un parque y una concesión de prueba, ejecuta casos válidos e inválidos,
           y limpia los datos al finalizar.
 ============================================================ */
@@ -19,7 +19,7 @@ GO
 SET NOCOUNT ON;
 
 PRINT '===============================================';
-PRINT 'INICIO DE TESTS: Concesiones.uspConcesionPagoRegister';
+PRINT 'INICIO DE TESTS: Concesiones.uspRegistrarPagoCanon';
 PRINT '===============================================';
 
 DECLARE @NombreParquePrueba VARCHAR(100) = 'Parque de Prueba PagoCanon';
@@ -60,7 +60,7 @@ WHERE Nombre = @NombreParquePrueba;
 PRINT '';
 PRINT '--- PASO 1: Creando Parque de Prueba ---';
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParquePrueba, 'Ubicación Prueba PagoCanon', 1500.00, 'Nacional', -35.123456, -65.654321, 1);
 
 SET @ParqueIdPrueba = SCOPE_IDENTITY();
@@ -72,7 +72,7 @@ PRINT 'Parque creado con ID: ' + CAST(@ParqueIdPrueba AS NVARCHAR(10));
 PRINT '';
 PRINT '--- PASO 2: Creando Concesión de Prueba ---';
 
-EXEC Concesiones.uspConcesionCreate
+EXEC Concesiones.uspConcesionAlta
 	@ParqueId = @ParqueIdPrueba,
 	@Cuit = 20999888777,
 	@EmpresaConcesionaria = 'Concesionaria de Prueba SA',
@@ -94,7 +94,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 1: Registrar pago período 06/2026';
 PRINT 'Resultado esperado: Éxito - Pago registrado';
 
-EXEC Concesiones.uspConcesionPagoRegister
+EXEC Concesiones.uspRegistrarPagoCanon
 	@ConcesionId = @ConcesionIdPrueba,
 	@FechaPago = '2026-06-05 09:00:00',
 	@PeriodoMes = 6,
@@ -108,7 +108,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 2: Registrar pago período 07/2026';
 PRINT 'Resultado esperado: Éxito - Pago registrado';
 
-EXEC Concesiones.uspConcesionPagoRegister
+EXEC Concesiones.uspRegistrarPagoCanon
 	@ConcesionId = @ConcesionIdPrueba,
 	@FechaPago = '2026-07-05 09:00:00',
 	@PeriodoMes = 7,
@@ -122,7 +122,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 3: Registrar pago período 08/2026';
 PRINT 'Resultado esperado: Éxito - Pago registrado';
 
-EXEC Concesiones.uspConcesionPagoRegister
+EXEC Concesiones.uspRegistrarPagoCanon
 	@ConcesionId = @ConcesionIdPrueba,
 	@FechaPago = '2026-08-05 09:00:00',
 	@PeriodoMes = 8,
@@ -143,7 +143,7 @@ PRINT 'CASO INVÁLIDO 1: Concesión inexistente';
 PRINT 'Resultado esperado: Error - La concesión no existe o no está activa';
 
 BEGIN TRY
-	EXEC Concesiones.uspConcesionPagoRegister
+	EXEC Concesiones.uspRegistrarPagoCanon
 		@ConcesionId = 999999,
 		@FechaPago = '2026-09-05 09:00:00',
 		@PeriodoMes = 9,
@@ -160,7 +160,7 @@ PRINT 'CASO INVÁLIDO 2: Período mes fuera de rango';
 PRINT 'Resultado esperado: Error - El período mes debe estar entre 1 y 12';
 
 BEGIN TRY
-	EXEC Concesiones.uspConcesionPagoRegister
+	EXEC Concesiones.uspRegistrarPagoCanon
 		@ConcesionId = @ConcesionIdPrueba,
 		@FechaPago = '2026-09-05 09:00:00',
 		@PeriodoMes = 13,
@@ -177,7 +177,7 @@ PRINT 'CASO INVÁLIDO 3: Monto abonado cero';
 PRINT 'Resultado esperado: Error - El monto abonado debe ser positivo';
 
 BEGIN TRY
-	EXEC Concesiones.uspConcesionPagoRegister
+	EXEC Concesiones.uspRegistrarPagoCanon
 		@ConcesionId = @ConcesionIdPrueba,
 		@FechaPago = '2026-09-05 09:00:00',
 		@PeriodoMes = 9,
@@ -224,5 +224,5 @@ WHERE ParqueId = @ParqueIdPrueba;
 PRINT 'Limpieza completada. Datos de prueba eliminados.';
 PRINT '';
 PRINT '===============================================';
-PRINT 'FIN DE TESTS: Concesiones.uspConcesionPagoRegister';
+PRINT 'FIN DE TESTS: Concesiones.uspRegistrarPagoCanon';
 PRINT '===============================================';

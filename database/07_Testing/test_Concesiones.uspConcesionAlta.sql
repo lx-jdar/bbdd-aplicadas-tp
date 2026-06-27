@@ -8,7 +8,7 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: 25/06/2026
-Objetivo: TESTING: Concesiones.uspConcesionCreate
+Objetivo: TESTING: Concesiones.uspConcesionAlta
 		Este script prueba el Store Procedure para crear concesiones.
 		Crea un parque de prueba, ejecuta casos válidos e inválidos,
 		y luego limpia los datos de prueba.
@@ -18,7 +18,7 @@ USE GestionParquesNacionales;
 GO
 
 PRINT '===============================================';
-PRINT 'INICIO DE TESTS: Concesiones.uspConcesionCreate';
+PRINT 'INICIO DE TESTS: Concesiones.uspConcesionAlta';
 PRINT '===============================================';
 GO
 
@@ -30,7 +30,7 @@ PRINT '--- PASO 1: Creando Parque de Prueba ---';
 
 DECLARE @ParqueIdPrueba INT;
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES ('Parque de Prueba Testing', 'Ubicación Prueba', 1000.00, 'Nacional', -35.123456, -65.654321, 1);
 
 SET @ParqueIdPrueba = SCOPE_IDENTITY();
@@ -53,7 +53,7 @@ DECLARE @ConcesionId1 INT;
 
 SELECT @ParqueId1 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-EXEC Concesiones.uspConcesionCreate
+EXEC Concesiones.uspConcesionAlta
 	@ParqueId = @ParqueId1,
 	@Cuit = 20123456789,
 	@EmpresaConcesionaria = 'Restaurante La Montaña SRL',
@@ -77,7 +77,7 @@ DECLARE @ConcesionId2 INT;
 
 SELECT @ParqueId2 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-EXEC Concesiones.uspConcesionCreate
+EXEC Concesiones.uspConcesionAlta
 	@ParqueId = @ParqueId2,
 	@Cuit = 27987654321,
 	@EmpresaConcesionaria = 'Hospedaje Naturaleza Plus',
@@ -100,7 +100,7 @@ DECLARE @ConcesionId3 INT;
 
 SELECT @ParqueId3 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-EXEC Concesiones.uspConcesionCreate
+EXEC Concesiones.uspConcesionAlta
 	@ParqueId = @ParqueId3,
 	@Cuit = 23555666777,
 	@EmpresaConcesionaria = 'Campamentos Andinos',
@@ -125,7 +125,7 @@ PRINT 'CASO INVÁLIDO 1: ParqueId no existe';
 PRINT 'Resultado esperado: Error - Parque no existe o no está activo';
 
 BEGIN TRY
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = 99999,
 		@Cuit = 20123456789,
 		@EmpresaConcesionaria = 'Empresa Fantasma',
@@ -148,7 +148,7 @@ BEGIN TRY
 	DECLARE @ParqueId4 INT;
 	SELECT @ParqueId4 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = @ParqueId4,
 		@Cuit = 20111111111,
 		@EmpresaConcesionaria = 'Empresa Test Fechas',
@@ -171,7 +171,7 @@ BEGIN TRY
 	DECLARE @ParqueId5 INT;
 	SELECT @ParqueId5 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = @ParqueId5,
 		@Cuit = 20222222222,
 		@EmpresaConcesionaria = 'Empresa Test Fechas Iguales',
@@ -194,7 +194,7 @@ BEGIN TRY
 	DECLARE @ParqueId5 INT;
 	SELECT @ParqueId5 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = @ParqueId5,
 		@Cuit = 20333333333,
 		@EmpresaConcesionaria = '',
@@ -217,7 +217,7 @@ BEGIN TRY
 	DECLARE @ParqueId6 INT;
 	SELECT @ParqueId6 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = @ParqueId6,
 		@Cuit = -20123456789,
 		@EmpresaConcesionaria = 'Empresa con CUIT Negativo',
@@ -240,7 +240,7 @@ BEGIN TRY
 	DECLARE @ParqueId7 INT;
 	SELECT @ParqueId7 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = @ParqueId7,
 		@Cuit = 20444444444,
 		@EmpresaConcesionaria = 'Empresa con Canon Negativo',
@@ -263,7 +263,7 @@ BEGIN TRY
 	DECLARE @ParqueId8 INT;
 	SELECT @ParqueId8 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
 
-	EXEC Concesiones.uspConcesionCreate
+	EXEC Concesiones.uspConcesionAlta
 		@ParqueId = @ParqueId8,
 		@Cuit = 20555555555,
 		@EmpresaConcesionaria = 'Empresa con Canon Cero',
@@ -294,7 +294,7 @@ SELECT
     FechaInicio,
     FechaFin,
     CanonMensual,
-    Activo
+    EsActivo
 FROM Concesiones.Concesion
 WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
 ORDER BY ConcesionId;
@@ -331,5 +331,5 @@ PRINT 'Limpieza completada. Datos de prueba eliminados.';
 
 PRINT '';
 PRINT '===============================================';
-PRINT 'FIN DE TESTS: Concesiones.uspConcesionCreate';
+PRINT 'FIN DE TESTS: Concesiones.uspConcesionAlta';
 PRINT '===============================================';

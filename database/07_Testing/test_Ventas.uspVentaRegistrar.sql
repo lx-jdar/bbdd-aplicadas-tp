@@ -84,11 +84,11 @@ WHERE Nombre IN (@NombreParquePrueba, @NombreParqueAux);
 PRINT '';
 PRINT '--- PASO 1: Creando parques de prueba ---';
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParquePrueba, 'Ubicación Test Venta', 1500.00, 'Nacional', -35.101010, -65.101010, 1);
 SET @ParqueIdPrueba = SCOPE_IDENTITY();
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParqueAux, 'Ubicación Test Venta Aux', 900.00, 'Nacional', -35.202020, -65.202020, 1);
 SET @ParqueIdAux = SCOPE_IDENTITY();
 

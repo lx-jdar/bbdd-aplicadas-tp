@@ -57,7 +57,7 @@ BEGIN
 			SELECT 1
 			FROM Parques.Parque
 			WHERE ParqueId = @ParqueId
-			  AND Activo = 1
+			  AND EsActivo = 1
 		)
 		BEGIN
 			THROW 50041, 'El parque no existe o no está activo.', 1;

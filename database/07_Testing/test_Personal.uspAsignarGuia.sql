@@ -8,7 +8,7 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: 27/06/2026
-Objetivo: Testing de Personal.uspTourAsignarGuia.
+Objetivo: Testing de Personal.uspAsignarGuia.
           Crea parque, guías y actividades de prueba, ejecuta casos
           válidos e inválidos, y limpia los datos al finalizar.
 ============================================================ */
@@ -19,7 +19,7 @@ GO
 SET NOCOUNT ON;
 
 PRINT '===============================================';
-PRINT 'INICIO DE TESTS: Personal.uspTourAsignarGuia';
+PRINT 'INICIO DE TESTS: Personal.uspAsignarGuia';
 PRINT '===============================================';
 
 DECLARE @NombreParquePrueba VARCHAR(100) = 'Parque Prueba TourGuia';
@@ -63,11 +63,11 @@ WHERE Dni IN (38900111, 38900112);
 PRINT '';
 PRINT '--- PASO 1: Creando parques de prueba ---';
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParquePrueba, 'Ubicación de Prueba', 1200.00, 'Nacional', -35.220001, -65.110001, 1);
 SET @ParqueIdPrueba = SCOPE_IDENTITY();
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES (@NombreParqueAux, 'Ubicación Auxiliar', 900.00, 'Nacional', -35.330001, -65.220001, 1);
 SET @ParqueIdAux = SCOPE_IDENTITY();
 
@@ -125,7 +125,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 1: Asignación 09:00 a 11:00';
 PRINT 'Resultado esperado: Éxito';
 
-EXEC Personal.uspTourAsignarGuia
+EXEC Personal.uspAsignarGuia
 	@ParqueId = @ParqueIdPrueba,
 	@ActividadId = @ActividadId1,
 	@GuiaId = @GuiaIdVigente,
@@ -139,7 +139,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 2: Asignación 11:00 a 13:00 (sin superposición)';
 PRINT 'Resultado esperado: Éxito';
 
-EXEC Personal.uspTourAsignarGuia
+EXEC Personal.uspAsignarGuia
 	@ParqueId = @ParqueIdPrueba,
 	@ActividadId = @ActividadId2,
 	@GuiaId = @GuiaIdVigente,
@@ -153,7 +153,7 @@ PRINT '';
 PRINT 'CASO VÁLIDO 3: Asignación 14:00 a 15:00';
 PRINT 'Resultado esperado: Éxito';
 
-EXEC Personal.uspTourAsignarGuia
+EXEC Personal.uspAsignarGuia
 	@ParqueId = @ParqueIdPrueba,
 	@ActividadId = @ActividadId3,
 	@GuiaId = @GuiaIdVigente,
@@ -173,7 +173,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 1: Guía inexistente';
 PRINT 'Resultado esperado: Error por guía inexistente';
 BEGIN TRY
-	EXEC Personal.uspTourAsignarGuia
+	EXEC Personal.uspAsignarGuia
 		@ParqueId = @ParqueIdPrueba,
 		@ActividadId = @ActividadId1,
 		@GuiaId = 999999,
@@ -189,7 +189,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 2: Guía con autorización vencida';
 PRINT 'Resultado esperado: Error por vigencia';
 BEGIN TRY
-	EXEC Personal.uspTourAsignarGuia
+	EXEC Personal.uspAsignarGuia
 		@ParqueId = @ParqueIdPrueba,
 		@ActividadId = @ActividadId1,
 		@GuiaId = @GuiaIdVencido,
@@ -205,7 +205,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 3: Horario inválido (inicio >= fin)';
 PRINT 'Resultado esperado: Error de horario';
 BEGIN TRY
-	EXEC Personal.uspTourAsignarGuia
+	EXEC Personal.uspAsignarGuia
 		@ParqueId = @ParqueIdPrueba,
 		@ActividadId = @ActividadId1,
 		@GuiaId = @GuiaIdVigente,
@@ -221,7 +221,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 4: Superposición horaria';
 PRINT 'Resultado esperado: Error por no disponibilidad';
 BEGIN TRY
-	EXEC Personal.uspTourAsignarGuia
+	EXEC Personal.uspAsignarGuia
 		@ParqueId = @ParqueIdPrueba,
 		@ActividadId = @ActividadId3,
 		@GuiaId = @GuiaIdVigente,
@@ -237,7 +237,7 @@ PRINT '';
 PRINT 'CASO INVÁLIDO 5: Actividad que no pertenece al parque';
 PRINT 'Resultado esperado: Error por inconsistencia actividad/parque';
 BEGIN TRY
-	EXEC Personal.uspTourAsignarGuia
+	EXEC Personal.uspAsignarGuia
 		@ParqueId = @ParqueIdPrueba,
 		@ActividadId = @ActividadIdAux,
 		@GuiaId = @GuiaIdVigente,
@@ -286,5 +286,5 @@ WHERE GuiaId IN (@GuiaIdVigente, @GuiaIdVencido);
 
 PRINT 'Limpieza completada.';
 PRINT '===============================================';
-PRINT 'FIN DE TESTS: Personal.uspTourAsignarGuia';
+PRINT 'FIN DE TESTS: Personal.uspAsignarGuia';
 PRINT '===============================================';

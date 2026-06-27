@@ -111,7 +111,7 @@ GO
 -- =============================================
 PRINT '--- Insertando datos en Parques.Parque ---';
 
-INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, Activo)
+INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
 VALUES 
 	('Parque Nacional Iguazú', 'Misiones, Argentina', 67620.00, 'Nacional', -25.594519, -54.557416, 1),
 	('Parque Nacional Los Glaciares', 'Santa Cruz, Argentina', 494162.00, 'Nacional', -50.332917, -73.063889, 1),
@@ -125,7 +125,7 @@ GO
 -- =============================================
 PRINT '--- Insertando datos en Concesiones.Concesion ---';
 
-INSERT INTO Concesiones.Concesion (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, Activo)
+INSERT INTO Concesiones.Concesion (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, EsActivo)
 VALUES 
 	(1, 20123456789, 'Cataratas Tours SRL', 'Tours Guiados', '2025-01-01', '2028-12-31', 75000.00, 1),
 	(1, 27987654321, 'Hospedaje Iguazú Premium', 'Hospedaje', '2025-03-15', '2029-03-14', 95000.50, 1),
@@ -140,7 +140,7 @@ GO
 -- =============================================
 PRINT '--- Insertando datos en Personal.Guardaparque ---';
 
-INSERT INTO Personal.Guardaparque (Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, Activo, ParqueId)
+INSERT INTO Personal.Guardaparque (Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, EsActivo, ParqueId)
 VALUES 
 	('Juan', 'Pérez', 30123456, '2020-01-15', NULL, 1, 1),
 	('María', 'González', 32987654, '2021-03-20', NULL, 1, 1),
