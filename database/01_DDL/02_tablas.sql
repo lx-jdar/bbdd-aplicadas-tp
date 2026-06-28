@@ -124,9 +124,12 @@ IF OBJECT_ID('Ventas.TipoVisitante', 'U') IS NOT NULL DROP TABLE Ventas.TipoVisi
 CREATE TABLE Ventas.TipoVisitante (
     TipoVisitanteId     INT IDENTITY(1,1) NOT NULL,
     Nombre              VARCHAR(100)      NOT NULL,
-    PorcentajeDescuento DECIMAL(5,2)      NOT NULL
+    PorcentajeDescuento DECIMAL(5,2)      NOT NULL,
+    EsActivo            BIT               NOT NULL
 );
 ALTER TABLE Ventas.TipoVisitante ADD CONSTRAINT PK_TipoVisitante_TipoVisitanteId PRIMARY KEY (TipoVisitanteId);
+ALTER TABLE Ventas.TipoVisitante ADD CONSTRAINT DF_TipoVisitante_EsActivo DEFAULT 1 FOR EsActivo;
+
 
 IF OBJECT_ID('Ventas.Visitante', 'U') IS NOT NULL DROP TABLE Ventas.Visitante;
 CREATE TABLE Ventas.Visitante (
