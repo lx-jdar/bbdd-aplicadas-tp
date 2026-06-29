@@ -29,3 +29,8 @@ SELECT
     value_in_use
 FROM sys.configurations
 WHERE name LIKE '%memory%';
+
+
+-- Configurar mapeo de Generación de Database Diagram
+IF EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[sysdiagrams]') AND type in (N'U'))
+    DROP TABLE [dbo].[sysdiagrams];

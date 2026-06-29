@@ -22,16 +22,11 @@
     <File Path="Parques.ufnCalculateTotal.sql" />
   </Folder>
   <Folder Name="/03_Programabilidad/Stored Procedures/">
-    <File Path="Parques.uspParqueCreate.sql" />
-    <File Path="../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionCreate.sql" />
-    <File Path="../database/03_Programabilidad/Stored Procedures/Concesiones.uspConcesionPagoRegister.sql" />
-    <File Path="../database/03_Programabilidad/Stored Procedures/Personal.uspTourAsignarGuia.sql" />
-    <File Path="../database/03_Programabilidad/Stored Procedures/Personal.uspGuardaparqueAsignarParque.sql" />
-    <File Path="../database/03_Programabilidad/Stored Procedures/Ventas.uspVentaRegistrar.sql" />
     <File Path="../database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql" />
+    <File Path="../database/03_Programabilidad/Stored Procedures/scriptReportes.sql" />
   </Folder>
   <Folder Name="/03_Programabilidad/Views/">
-    <File Path="Parques.vwClientOrders.sql" />
+    <File Path="../database/03_Programabilidad/Views/Parques.vwClientOrders.sql" />
   </Folder>
   <Folder Name="/04_Data/">
     <File Path="../database/04_Data/datos_iniciales.sql" />
@@ -42,16 +37,18 @@
   <Folder Name="/06_Imports/" />
   <Folder Name="/07_Reportes/" />
   <Folder Name="/08_Testing/">
-    <File Path="../database/07_Testing/test_Concesiones.uspConcesionCreate.sql" />
-    <File Path="../database/07_Testing/test_Concesiones.uspConcesionPagoRegister.sql" />
-    <File Path="../database/07_Testing/test_Personal.uspTourAsignarGuia.sql" />
-    <File Path="../database/07_Testing/test_Personal.uspGuardaparqueAsignarParque.sql" />
-    <File Path="../database/07_Testing/test_Ventas.uspVentaRegistrar.sql" />
+    <File Path="../database/07_Testing/test_sp_abm.sql" />
+    <File Path="../database/07_Testing/test_sp_negocio.sql" />
+
+    <File Path="../database/07_Testing/test_importacion.sql" />
+
+    <File Path="../database/07_Testing/test_reportes.sql" />
   </Folder>
 
   <Folder Name="/Solution Items/">
     <File Path="RUN_ALL.sql" />
     <File Path="README.md" />
+    <File Path="ver-resultado-completo-dba.log" />
   </Folder>
 </Solution>
  
