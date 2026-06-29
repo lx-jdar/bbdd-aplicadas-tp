@@ -35,7 +35,9 @@
     <File Path="SQLAgentJobs.sql" />
   </Folder>
   <Folder Name="/06_Imports/" />
-  <Folder Name="/07_Reportes/" />
+  <Folder Name="/07_Reportes/" >
+    <File Path="../database/05_Imports/scriptReportes.sql" />
+  </Folder>
   <Folder Name="/08_Testing/">
     <File Path="../database/07_Testing/test_sp_abm.sql" />
     <File Path="../database/07_Testing/test_sp_negocio.sql" />
