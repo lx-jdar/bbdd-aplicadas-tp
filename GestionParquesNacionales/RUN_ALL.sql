@@ -23,14 +23,11 @@ PRINT 'Creando base de datos...'
 	:r "../database/01_DDL/00_teardown.sql"
 	:r "../database/01_DDL/01_base_esquemas.sql"
 	:r "../database/01_DDL/02_tablas.sql"
-
--- 04: Data
-	:r "../database/04_Data/datos_iniciales.sql"
 	
--- 05: Programabilidad
+-- 02: Programabilidad
 	
-	-- Funciones
-	--:r ../database/ddl/05_funciones.sql
+	-- 03: Programabilidad — Funciones
+	:r "../database/03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql"
 	
 	-- Procedimientos Almacenados
 	:r "../database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql"
@@ -38,13 +35,23 @@ PRINT 'Creando base de datos...'
 	--:r ../database/ddl/triggerA.sql
 	
 	-- Vistas
-	--:r ../database/ddl/06_vistas.sql
+	:r "../database/03_Programabilidad/Views/Parques.vwClientOrders.sql"
 
-	-- Permisos
-	--:r ../database/ddl/07_roles_permisos.sql
+-- 03: Data
+	:r "../database/04_Data/datos_iniciales.sql"
 
-	-- Cifrado
-	--:r ../database/ddl/08_cifrado.sql
+-- 04: Imports
+	:r "../database/05_Imports/gobar/Parques.uspImportarEstadisticasVisitas.sql"
+	:r "../database/05_Imports/ign/Parques.uspImportarUbicacionesDeAreasProtegidas.sql"
+	:r "../database/05_Imports/indec/Parques.uspImportarAreasProtegidas.sql"
+
+-- 05: Reports
+	:r "../database/06_Reportes/scriptReportes.sql"
+
+-- Seguridad
+	:r "../database/02_Seguridad/01_Roles.sql"
+	:r "../database/02_Seguridad/02_Logins.sql"
+	:r "../database/02_Seguridad/03_Users.sql"
 
 -- 07: Testing
 	:r "../database/07_Testing/test_sp_abm.sql"
