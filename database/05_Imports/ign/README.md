@@ -17,7 +17,7 @@
 
 **Coordenada de referencia:** centroide del `bbox`, no del polígono real. No representa el acceso ni la sede administrativa.
 
-**Nota sobre encoding:** el archivo está en UTF-8. En servidores SQL Server con collation Latin1, los caracteres con tilde pueden no leerse correctamente. En ese caso, convertir el archivo a ANSI antes de importar o cargar las excepciones en `Importacion.EquivalenciaNombreFuente`.
+**Nota sobre encoding:** el archivo está en UTF-8. En servidores SQL Server con collation Latin1, los caracteres con tilde pueden no leerse correctamente y el matching por nombre puede fallar. En ese caso, convertir el archivo a ANSI/Windows-1252 antes de importar con PowerShell: `$c = Get-Content 'C:\datasets\areas_protegida_geo.geojson' -Encoding UTF8 -Raw; [IO.File]::WriteAllText('C:\datasets\areas_protegida_geo.geojson', $c, [Text.Encoding]::GetEncoding(1252))`
 
 **Descarga:** https://www.ign.gob.ar/NuestrasActividades/InformacionGeoespacial/CapasSIG
 
@@ -25,7 +25,7 @@
 
 ## Prerrequisitos para ejecutar la importación
 
-1. Ejecutar `database/05_Imports/00_InfraestructuraImportacion.sql` antes.
+1. Ejecutar el `runAll.sql` completo (o al menos hasta `02_tablas.sql`) para que el schema `Importacion` y sus tablas existan.
 2. Ejecutar `Parques.uspImportarAreasProtegidas` primero para que los parques existan en el sistema.
 3. Copiar `areas_protegida_geo.geojson` a `C:\datasets\` en la máquina que corre SQL Server y dar permiso de lectura sobre esa carpeta a la cuenta de servicio de SQL Server.
 
