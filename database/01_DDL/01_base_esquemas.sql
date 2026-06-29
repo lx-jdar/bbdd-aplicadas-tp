@@ -23,11 +23,13 @@ BEGIN
     DROP SCHEMA IF EXISTS Ventas;
     DROP SCHEMA IF EXISTS Concesiones;
     DROP SCHEMA IF EXISTS Personal;
+    DROP SCHEMA IF EXISTS Importacion;
 
     EXEC('CREATE SCHEMA Parques');
     EXEC('CREATE SCHEMA Personal');
     EXEC('CREATE SCHEMA Concesiones');
     EXEC('CREATE SCHEMA Ventas');
+    EXEC('CREATE SCHEMA Importacion');
 
 END;
 GO
