@@ -554,48 +554,316 @@ GO
 -- ============================================================
 -- Concesiones.uspConcesionAlta
 -- ============================================================
-/*
-PRINT '';
-PRINT '--- TEST: Concesiones.uspConcesionAlta ---';
+BEGIN 
 
--- CASO: ERROR - parque inexistente, CUIT nulo, empresa vacia, fechas invertidas, canon negativo
--- Resultado esperado: THROW con multiples errores.
-BEGIN TRY
-    EXEC Concesiones.uspConcesionAlta 99999, 0, '', 'Gastronomia', '2026-12-01', '2026-01-01', -500.00, 1;
-    PRINT '[FAIL] No se lanzo el error esperado.';
-END TRY
-BEGIN CATCH
-    PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
-END CATCH;
-GO
+    PRINT '===============================================';
+    PRINT 'INICIO DE TESTS: Concesiones.uspConcesionAlta';
+    PRINT '===============================================';
 
--- CASO: EXITOSO - alta de concesion valida en parque 2
--- Resultado esperado: INSERT exitoso.
-BEGIN TRY
+    -- =============================================
+    -- PASO 1: Crear un Parque de Prueba
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 1: Creando Parque de Prueba ---';
+
+    DECLARE @ParqueIdPrueba INT;
+
+    INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
+    VALUES ('Parque de Prueba Testing', 'Ubicación Prueba', 1000.00, 'Nacional', -35.123456, -65.654321, 1);
+
+    SET @ParqueIdPrueba = SCOPE_IDENTITY();
+    PRINT 'Parque creado con ID: ' + CAST(@ParqueIdPrueba AS NVARCHAR(10));
+    
+    -- =============================================
+    -- PASO 2: Casos de Prueba Válidos
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 2: Casos de Prueba VÁLIDOS ---';
+
+    -- CASO VÁLIDO 1: Crear concesión de Restaurante
+    PRINT '';
+    PRINT 'CASO VÁLIDO 1: Crear concesión de Restaurante';
+    PRINT 'Resultado esperado: Éxito - Concesión creada';
+
+    DECLARE @ParqueId1 INT;
+    DECLARE @ConcesionId1 INT;
+
+    SELECT @ParqueId1 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
     EXEC Concesiones.uspConcesionAlta
-        2, 27333444555, 'Patagonia Gastro SRL', 'Gastronomia', '2026-07-01', '2029-06-30', 55000.00, 1;
-    PRINT '[OK - EXITOSO] Concesion creada correctamente.';
-END TRY
-BEGIN CATCH
-    PRINT '[FAIL] ' + ERROR_MESSAGE();
-END CATCH;
-GO
+        @ParqueId = @ParqueId1,
+        @Cuit = 20123456789,
+        @EmpresaConcesionaria = 'Restaurante La Montaña SRL',
+        @TipoActividad = 'Restaurante',
+        @FechaInicio = '2026-07-01',
+        @FechaFin = '2027-06-30',
+        @CanonMensual = 50000.00,
+        @ConcesionId = @ConcesionId1 OUTPUT;
 
-SELECT ConcesionId, EmpresaConcesionaria, CanonMensual FROM Concesiones.Concesion WHERE EmpresaConcesionaria = 'Patagonia Gastro SRL';
-GO
+    PRINT 'Concesión 1 creada con ID: ' + CAST(@ConcesionId1 AS NVARCHAR(10));
 
--- CASO: ERROR - concesion duplicada (misma empresa, tipo y parque activos)
--- Resultado esperado: THROW indicando duplicado.
-BEGIN TRY
+    --Select * from Concesiones.Concesion where ConcesionId = 8;
+
+    -- CASO VÁLIDO 2: Crear concesión de Hospedaje
+    PRINT '';
+    PRINT 'CASO VÁLIDO 2: Crear concesión de Hospedaje';
+    PRINT 'Resultado esperado: Éxito - Concesión creada';
+
+    DECLARE @ParqueId2 INT;
+    DECLARE @ConcesionId2 INT;
+
+    SELECT @ParqueId2 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
     EXEC Concesiones.uspConcesionAlta
-        2, 27333444555, 'Patagonia Gastro SRL', 'Gastronomia', '2027-01-01', '2030-01-01', 60000.00, 1;
-    PRINT '[FAIL] No se lanzo el error de duplicado.';
-END TRY
-BEGIN CATCH
-    PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
-END CATCH;
+        @ParqueId = @ParqueId2,
+        @Cuit = 27987654321,
+        @EmpresaConcesionaria = 'Hospedaje Naturaleza Plus',
+        @TipoActividad = 'Hospedaje',
+        @FechaInicio = '2026-08-15',
+        @FechaFin = '2028-08-14',
+        @CanonMensual = 75000.50,
+        @ConcesionId = @ConcesionId2 OUTPUT;
+
+    PRINT 'Concesión 2 creada con ID: ' + CAST(@ConcesionId2 AS NVARCHAR(10));
+
+    -- CASO VÁLIDO 3: Crear concesión de Campamento
+    PRINT '';
+    PRINT 'CASO VÁLIDO 3: Crear concesión de Campamento';
+    PRINT 'Resultado esperado: Éxito - Concesión creada';
+
+    DECLARE @ParqueId3 INT;
+    DECLARE @ConcesionId3 INT;
+
+    SELECT @ParqueId3 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+    EXEC Concesiones.uspConcesionAlta
+        @ParqueId = @ParqueId3,
+        @Cuit = 23555666777,
+        @EmpresaConcesionaria = 'Campamentos Andinos',
+        @TipoActividad = 'Campamento',
+        @FechaInicio = '2026-09-01',
+        @FechaFin = '2029-08-31',
+        @CanonMensual = 30000.00,
+        @ConcesionId = @ConcesionId3 OUTPUT;
+
+    PRINT 'Concesión 3 creada con ID: ' + CAST(@ConcesionId3 AS NVARCHAR(10));
+  
+
+    -- =============================================
+    -- PASO 3: Casos de Prueba INVÁLIDOS
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 3: Casos de Prueba INVÁLIDOS ---';
+
+    -- CASO INVÁLIDO 1: ParqueId no existe
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 1: ParqueId no existe';
+    PRINT 'Resultado esperado: Error - Parque no existe o no está activo';
+
+    BEGIN TRY
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = 99999,
+            @Cuit = 20123456789,
+            @EmpresaConcesionaria = 'Empresa Fantasma',
+            @TipoActividad = 'Restaurante',
+            @FechaInicio = '2026-07-01',
+            @FechaFin = '2027-06-30',
+            @CanonMensual = 50000.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- CASO INVÁLIDO 2: FechaInicio >= FechaFin
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 2: FechaInicio >= FechaFin';
+    PRINT 'Resultado esperado: Error - Fechas inválidas';
+
+    BEGIN TRY
+        DECLARE @ParqueId4 INT;
+        SELECT @ParqueId4 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = @ParqueId4,
+            @Cuit = 20111111111,
+            @EmpresaConcesionaria = 'Empresa Test Fechas',
+            @TipoActividad = 'Restaurante',
+            @FechaInicio = '2027-06-30',
+            @FechaFin = '2026-07-01',
+            @CanonMensual = 50000.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- CASO INVÁLIDO 3: FechaInicio = FechaFin
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 3: FechaInicio = FechaFin';
+    PRINT 'Resultado esperado: Error - Fechas deben ser distintas';
+
+    BEGIN TRY
+        DECLARE @ParqueId5 INT;
+        SELECT @ParqueId5 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = @ParqueId5,
+            @Cuit = 20222222222,
+            @EmpresaConcesionaria = 'Empresa Test Fechas Iguales',
+            @TipoActividad = 'Hospedaje',
+            @FechaInicio = '2026-07-01',
+            @FechaFin = '2026-07-01',
+            @CanonMensual = 50000.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- CASO INVÁLIDO 4: Empresa vacía
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 4: Empresa concesionaria vacía';
+    PRINT 'Resultado esperado: Error - Empresa no puede estar vacía';
+
+    BEGIN TRY
+        DECLARE @ParqueId6 INT;
+        SELECT @ParqueId6 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = @ParqueId6,
+            @Cuit = 20333333333,
+            @EmpresaConcesionaria = '',
+            @TipoActividad = 'Restaurante',
+            @FechaInicio = '2026-07-01',
+            @FechaFin = '2027-06-30',
+            @CanonMensual = 50000.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- CASO INVÁLIDO 5: CUIT inválido (negativo)
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 5: CUIT negativo';
+    PRINT 'Resultado esperado: Error - CUIT debe ser positivo';
+
+    BEGIN TRY
+        DECLARE @ParqueId7 INT;
+        SELECT @ParqueId7 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = @ParqueId7,
+            @Cuit = -20123456789,
+            @EmpresaConcesionaria = 'Empresa con CUIT Negativo',
+            @TipoActividad = 'Restaurante',
+            @FechaInicio = '2026-07-01',
+            @FechaFin = '2027-06-30',
+            @CanonMensual = 50000.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- CASO INVÁLIDO 6: Canon mensual negativo
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 6: Canon mensual negativo';
+    PRINT 'Resultado esperado: Error - Canon debe ser positivo';
+
+    BEGIN TRY
+        DECLARE @ParqueId8 INT;
+        SELECT @ParqueId8 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = @ParqueId8,
+            @Cuit = 20444444444,
+            @EmpresaConcesionaria = 'Empresa con Canon Negativo',
+            @TipoActividad = 'Restaurante',
+            @FechaInicio = '2026-07-01',
+            @FechaFin = '2027-06-30',
+            @CanonMensual = -50000.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- CASO INVÁLIDO 7: Canon mensual igual a cero
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 7: Canon mensual igual a cero';
+    PRINT 'Resultado esperado: Error - Canon debe ser positivo';
+
+    BEGIN TRY
+        DECLARE @ParqueId9 INT;
+        SELECT @ParqueId9 = ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing';
+
+        EXEC Concesiones.uspConcesionAlta
+            @ParqueId = @ParqueId9,
+            @Cuit = 20555555555,
+            @EmpresaConcesionaria = 'Empresa con Canon Cero',
+            @TipoActividad = 'Restaurante',
+            @FechaInicio = '2026-07-01',
+            @FechaFin = '2027-06-30',
+            @CanonMensual = 0.00;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- =============================================
+    -- PASO 4: Verificación de datos insertados
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 4: Verificación de Concesiones Creadas ---';
+
+    BEGIN TRANSACTION;
+
+    SELECT 
+        ConcesionId,
+        ParqueId,
+        Cuit,
+        CAST(EmpresaConcesionaria AS VARCHAR(30)) AS EmpresaConcesionaria,
+        CAST(TipoActividad AS VARCHAR(15)) AS TipoActividad,
+        FechaInicio,
+        FechaFin,
+        CanonMensual,
+        EsActivo
+    FROM Concesiones.Concesion
+    WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
+    ORDER BY ConcesionId;
+
+    COMMIT;
+
+    -- =============================================
+    -- PASO 5: Limpieza de datos de prueba
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 5: Limpieza de Datos de Prueba ---';
+
+    BEGIN TRANSACTION;
+
+    -- Eliminar concesiones creadas en el parque de prueba
+    DELETE FROM Concesiones.PagoCanon
+    WHERE ConcesionId IN (
+        SELECT ConcesionId FROM Concesiones.Concesion
+        WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing')
+    );
+
+    DELETE FROM Concesiones.Concesion
+    WHERE ParqueId IN (SELECT ParqueId FROM Parques.Parque WHERE Nombre = 'Parque de Prueba Testing');
+
+    -- Eliminar el parque de prueba
+    DELETE FROM Parques.Parque
+    WHERE Nombre = 'Parque de Prueba Testing';
+
+    COMMIT;
+
+    PRINT 'Limpieza completada. Datos de prueba eliminados.';
+
+    PRINT '';
+    PRINT '===============================================';
+    PRINT 'FIN DE TESTS: Concesiones.uspConcesionAlta';
+    PRINT '===============================================';
+END;
 GO
-*/
+
+
 -- ============================================================
 -- Concesiones.uspConcesionModificar
 -- ============================================================
@@ -669,48 +937,223 @@ END CATCH;
 GO
 
 -- ============================================================
--- Concesiones.uspPagoCanonAlta
+-- Testing de Concesiones.uspRegistrarPagoCanon
 -- ============================================================
-/*
-PRINT '';
-PRINT '--- TEST: Concesiones.uspPagoCanonAlta ---';
+BEGIN 
+    SET NOCOUNT ON;
 
--- CASO: ERROR - concesion inexistente, mes invalido, monto negativo, fecha futura
--- Resultado esperado: THROW con multiples errores.
-BEGIN TRY
-    EXEC Concesiones.uspPagoCanonAlta 99999, '2030-01-01', 15, 2026, -100.00;
-    PRINT '[FAIL] No se lanzo el error esperado.';
-END TRY
-BEGIN CATCH
-    PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
-END CATCH;
+    PRINT '===============================================';
+    PRINT 'INICIO DE TESTS: Concesiones.uspRegistrarPagoCanon';
+    PRINT '===============================================';
+
+    DECLARE @NombreParquePrueba VARCHAR(100) = 'Parque de Prueba PagoCanon';
+    DECLARE @ParqueIdPrueba INT;
+    DECLARE @ConcesionIdPrueba INT;
+    DECLARE @PagoCanonId1 INT;
+    DECLARE @PagoCanonId2 INT;
+    DECLARE @PagoCanonId3 INT;
+    DECLARE @PagoCanonId4 INT;
+
+    -- =============================================
+    -- LIMPIEZA PREVIA: elimina residuos de ejecuciones anteriores
+    -- =============================================
+    DELETE FROM Concesiones.PagoCanon
+    WHERE ConcesionId IN (
+        SELECT ConcesionId
+        FROM Concesiones.Concesion
+        WHERE ParqueId IN (
+            SELECT ParqueId
+            FROM Parques.Parque
+            WHERE Nombre = @NombreParquePrueba
+        )
+    );
+
+    DELETE FROM Concesiones.Concesion
+    WHERE ParqueId IN (
+        SELECT ParqueId
+        FROM Parques.Parque
+        WHERE Nombre = @NombreParquePrueba
+    );
+
+    DELETE FROM Parques.Parque
+    WHERE Nombre = @NombreParquePrueba;
+
+    -- =============================================
+    -- PASO 1: Crear un Parque de Prueba
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 1: Creando Parque de Prueba ---';
+
+    INSERT INTO Parques.Parque (Nombre, Ubicacion, Superficie, TipoParque, Latitud, Longitud, EsActivo)
+    VALUES (@NombreParquePrueba, 'Ubicación Prueba PagoCanon', 1500.00, 'Nacional', -35.123456, -65.654321, 1);
+
+    SET @ParqueIdPrueba = SCOPE_IDENTITY();
+    PRINT 'Parque creado con ID: ' + CAST(@ParqueIdPrueba AS NVARCHAR(10));
+
+    -- =============================================
+    -- PASO 2: Crear una Concesión de Prueba
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 2: Creando Concesión de Prueba ---';
+
+    EXEC Concesiones.uspConcesionAlta
+        @ParqueId = @ParqueIdPrueba,
+        @Cuit = 20999888777,
+        @EmpresaConcesionaria = 'Concesionaria de Prueba SA',
+        @TipoActividad = 'Restaurante',
+        @FechaInicio = '2026-01-01',
+        @FechaFin = '2028-12-31',
+        @CanonMensual = 75000.00,
+        @ConcesionId = @ConcesionIdPrueba OUTPUT;
+
+    PRINT 'Concesión de prueba creada con ID: ' + CAST(@ConcesionIdPrueba AS NVARCHAR(10));
+
+    -- =============================================
+    -- PASO 3: Casos de Prueba VÁLIDOS
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 3: Casos de Prueba VÁLIDOS ---';
+
+    PRINT '';
+    PRINT 'CASO VÁLIDO 1: Registrar pago período 06/2026';
+    PRINT 'Resultado esperado: Éxito - Pago registrado';
+
+    EXEC Concesiones.uspRegistrarPagoCanon
+        @ConcesionId = @ConcesionIdPrueba,
+        @FechaPago = '2026-06-05 09:00:00',
+        @PeriodoMes = 6,
+        @PeriodoAnio = 2026,
+        @MontoAbonado = 75000.00,
+        @PagoCanonId = @PagoCanonId1 OUTPUT;
+
+    PRINT 'Pago 1 registrado con ID: ' + CAST(@PagoCanonId1 AS NVARCHAR(10));
+
+    PRINT '';
+    PRINT 'CASO VÁLIDO 2: Registrar pago período 07/2026';
+    PRINT 'Resultado esperado: Éxito - Pago registrado';
+
+    EXEC Concesiones.uspRegistrarPagoCanon
+        @ConcesionId = @ConcesionIdPrueba,
+        @FechaPago = '2026-07-05 09:00:00',
+        @PeriodoMes = 7,
+        @PeriodoAnio = 2026,
+        @MontoAbonado = 75000.00,
+        @PagoCanonId = @PagoCanonId2 OUTPUT;
+
+    PRINT 'Pago 2 registrado con ID: ' + CAST(@PagoCanonId2 AS NVARCHAR(10));
+
+    PRINT '';
+    PRINT 'CASO VÁLIDO 3: Registrar pago período 08/2026';
+    PRINT 'Resultado esperado: Éxito - Pago registrado';
+
+    EXEC Concesiones.uspRegistrarPagoCanon
+        @ConcesionId = @ConcesionIdPrueba,
+        @FechaPago = '2026-08-05 09:00:00',
+        @PeriodoMes = 8,
+        @PeriodoAnio = 2026,
+        @MontoAbonado = 75000.00,
+        @PagoCanonId = @PagoCanonId3 OUTPUT;
+
+    PRINT 'Pago 3 registrado con ID: ' + CAST(@PagoCanonId3 AS NVARCHAR(10));
+
+    -- =============================================
+    -- PASO 4: Casos de Prueba INVÁLIDOS
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 4: Casos de Prueba INVÁLIDOS ---';
+
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 1: Concesión inexistente';
+    PRINT 'Resultado esperado: Error - La concesión no existe o no está activa';
+
+    BEGIN TRY
+        EXEC Concesiones.uspRegistrarPagoCanon
+            @ConcesionId = 999999,
+            @FechaPago = '2026-09-05 09:00:00',
+            @PeriodoMes = 9,
+            @PeriodoAnio = 2026,
+            @MontoAbonado = 75000.00,
+            @PagoCanonId = @PagoCanonId4 OUTPUT;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 2: Período mes fuera de rango';
+    PRINT 'Resultado esperado: Error - El período mes debe estar entre 1 y 12';
+
+    BEGIN TRY
+        EXEC Concesiones.uspRegistrarPagoCanon
+            @ConcesionId = @ConcesionIdPrueba,
+            @FechaPago = '2026-09-05 09:00:00',
+            @PeriodoMes = 13,
+            @PeriodoAnio = 2026,
+            @MontoAbonado = 75000.00,
+            @PagoCanonId = @PagoCanonId4 OUTPUT;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    PRINT '';
+    PRINT 'CASO INVÁLIDO 3: Monto abonado cero';
+    PRINT 'Resultado esperado: Error - El monto abonado debe ser positivo';
+
+    BEGIN TRY
+        EXEC Concesiones.uspRegistrarPagoCanon
+            @ConcesionId = @ConcesionIdPrueba,
+            @FechaPago = '2026-09-05 09:00:00',
+            @PeriodoMes = 9,
+            @PeriodoAnio = 2026,
+            @MontoAbonado = 0.00,
+            @PagoCanonId = @PagoCanonId4 OUTPUT;
+    END TRY
+    BEGIN CATCH
+        PRINT 'ERROR CAPTURADO (ESPERADO): ' + ERROR_MESSAGE();
+    END CATCH;
+
+    -- =============================================
+    -- PASO 5: Verificación de pagos insertados
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 5: Verificación de Pagos Registrados ---';
+
+    SELECT
+        PagoCanonId,
+        ConcesionId,
+        FechaPago,
+        PeriodoMes,
+        PeriodoAnio,
+        MontoAbonado
+    FROM Concesiones.PagoCanon
+    WHERE ConcesionId = @ConcesionIdPrueba
+    ORDER BY PagoCanonId;
+
+    -- =============================================
+    -- PASO 6: Limpieza de datos de prueba
+    -- =============================================
+    PRINT '';
+    PRINT '--- PASO 6: Limpieza de Datos de Prueba ---';
+
+    DELETE FROM Concesiones.PagoCanon
+    WHERE ConcesionId = @ConcesionIdPrueba;
+
+    DELETE FROM Concesiones.Concesion
+    WHERE ConcesionId = @ConcesionIdPrueba;
+
+    DELETE FROM Parques.Parque
+    WHERE ParqueId = @ParqueIdPrueba;
+
+    PRINT 'Limpieza completada. Datos de prueba eliminados.';
+    PRINT '';
+    PRINT '===============================================';
+    PRINT 'FIN DE TESTS: Concesiones.uspRegistrarPagoCanon';
+    PRINT '===============================================';
+
+END;
 GO
 
--- CASO: EXITOSO - registrar pago para concesion 1, periodo julio 2026
--- Resultado esperado: INSERT exitoso.
-BEGIN TRY
-    EXEC Concesiones.uspPagoCanonAlta 1, '2026-06-28 10:00:00', 7, 2026, 75000.00;
-    PRINT '[OK - EXITOSO] Pago de canon registrado.';
-END TRY
-BEGIN CATCH
-    PRINT '[FAIL] ' + ERROR_MESSAGE();
-END CATCH;
-GO
-
--- CASO: ERROR - pago duplicado para el mismo periodo
--- Resultado esperado: THROW indicando pago duplicado.
-BEGIN TRY
-    EXEC Concesiones.uspPagoCanonAlta 1, '2026-06-28 11:00:00', 7, 2026, 75000.00;
-    PRINT '[FAIL] No se lanzo el error de duplicado.';
-END TRY
-BEGIN CATCH
-    PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
-END CATCH;
-GO
-
-SELECT PagoCanonId, PeriodoMes, PeriodoAnio, MontoAbonado FROM Concesiones.PagoCanon WHERE ConcesionId = 1 AND PeriodoMes = 7;
-GO
-*/
 -- ============================================================
 -- Concesiones.uspPagoCanonModificar
 -- ============================================================

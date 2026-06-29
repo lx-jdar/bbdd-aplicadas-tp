@@ -408,6 +408,129 @@ END
 GO
 
 -- ------------------------------------------------------------
+-- Personal.uspAsignarGuardaparque
+-- Asigna o reasigna un guardaparque a un parque.
+-- ------------------------------------------------------------
+CREATE OR ALTER PROCEDURE Personal.uspAsignarGuardaparque
+	@GuardaparqueIdActual INT,
+	@ParqueIdNuevo INT,
+	@FechaAsignacion DATE = NULL,
+	@GuardaparqueIdNuevo INT = NULL OUTPUT
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @MensajeError NVARCHAR(4000);
+	DECLARE @ParqueIdActual INT;
+	DECLARE @FechaIngresoActual DATE;
+
+	BEGIN TRY
+		IF @FechaAsignacion IS NULL
+		BEGIN
+			SET @FechaAsignacion = CAST(GETDATE() AS DATE);
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 1: Guardaparque actual válido y activo
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Personal.Guardaparque
+			WHERE GuardaparqueId = @GuardaparqueIdActual
+			  AND EsActivo = 1
+			  AND FechaEgresoSistema IS NULL
+		)
+		BEGIN
+			SET @MensajeError = 'El guardaparque con ID ' + CAST(@GuardaparqueIdActual AS NVARCHAR(10)) + ' no existe o no tiene asignación activa.';
+			THROW 50031, @MensajeError, 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 2: Parque nuevo válido y activo
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Parques.Parque
+			WHERE ParqueId = @ParqueIdNuevo
+			  AND EsActivo = 1
+		)
+		BEGIN
+			SET @MensajeError = 'El parque destino con ID ' + CAST(@ParqueIdNuevo AS NVARCHAR(10)) + ' no existe o no está activo.';
+			THROW 50032, @MensajeError, 1;
+		END;
+
+		SELECT
+			@ParqueIdActual = ParqueId,
+			@FechaIngresoActual = FechaIngresoSistema
+		FROM Personal.Guardaparque
+		WHERE GuardaparqueId = @GuardaparqueIdActual;
+
+		-- =============================================
+		-- VALIDACIÓN 3: Debe cambiar de parque
+		-- =============================================
+		IF @ParqueIdActual = @ParqueIdNuevo
+		BEGIN
+			THROW 50033, 'El parque destino debe ser diferente al parque actual.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 4: Fecha de asignación consistente
+		-- =============================================
+		IF @FechaAsignacion < @FechaIngresoActual
+		BEGIN
+			THROW 50034, 'La fecha de asignación no puede ser anterior a la fecha de ingreso de la asignación actual.', 1;
+		END;
+
+		BEGIN TRANSACTION;
+
+		-- =============================================
+		-- PASO 1: Cerrar asignación anterior
+		-- =============================================
+		UPDATE Personal.Guardaparque
+		SET FechaEgresoSistema = @FechaAsignacion,
+			EsActivo = 0
+		WHERE GuardaparqueId = @GuardaparqueIdActual
+		  AND EsActivo = 1
+		  AND FechaEgresoSistema IS NULL;
+
+		IF @@ROWCOUNT = 0
+		BEGIN
+			THROW 50035, 'No se pudo cerrar la asignación anterior del guardaparque.', 1;
+		END;
+
+		-- =============================================
+		-- PASO 2: Insertar nueva asignación con fecha
+		-- =============================================
+		INSERT INTO Personal.Guardaparque
+			(Nombre, Apellido, Dni, FechaIngresoSistema, FechaEgresoSistema, EsActivo, ParqueId)
+		SELECT
+			Nombre,
+			Apellido,
+			Dni,
+			@FechaAsignacion,
+			NULL,
+			1,
+			@ParqueIdNuevo
+		FROM Personal.Guardaparque
+		WHERE GuardaparqueId = @GuardaparqueIdActual;
+
+		SET @GuardaparqueIdNuevo = SCOPE_IDENTITY();
+
+		COMMIT TRANSACTION;
+
+		PRINT 'Reasignación creada exitosamente con GuardaparqueId: ' + CAST(@GuardaparqueIdNuevo AS NVARCHAR(20));
+	END TRY
+	BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END;
+		THROW;
+	END CATCH
+END;
+GO
+
+-- ------------------------------------------------------------
 -- Personal.uspGuardaparqueAlta
 -- ------------------------------------------------------------
 CREATE OR ALTER PROCEDURE Personal.uspGuardaparqueAlta(
@@ -526,11 +649,115 @@ END
 GO
 
 -- ------------------------------------------------------------
--- Personal.uspTourGuiaAlta
+-- Personal.uspAsignarGuia
 -- Asigna un guia a una actividad/tour en un parque.
 -- ------------------------------------------------------------
+CREATE OR ALTER PROCEDURE Personal.uspAsignarGuia
+	@ParqueId INT,
+	@ActividadId INT,
+	@GuiaId INT,
+	@HorarioInicio TIME,
+	@HorarioFin TIME,
+	@TourGuiaId INT = NULL OUTPUT
+AS
+BEGIN
+	SET NOCOUNT ON;
 
-        -- SP Personal.uspAsignarGuia
+	DECLARE @MensajeError NVARCHAR(4000);
+
+	BEGIN TRY
+		-- =============================================
+		-- VALIDACIÓN 1: Parque válido y activo
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Parques.Parque
+			WHERE ParqueId = @ParqueId
+			  AND EsActivo = 1
+		)
+		BEGIN
+			SET @MensajeError = 'El parque con ID ' + CAST(@ParqueId AS NVARCHAR(10)) + ' no existe o no está activo.';
+			THROW 50021, @MensajeError, 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 2: Actividad válida y del parque indicado
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Parques.Actividad
+			WHERE ActividadId = @ActividadId
+			  AND ParqueId = @ParqueId
+		)
+		BEGIN
+			THROW 50022, 'La actividad no existe o no pertenece al parque indicado.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 3: Guía existente
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Personal.Guia
+			WHERE GuiaId = @GuiaId
+		)
+		BEGIN
+			SET @MensajeError = 'El guía con ID ' + CAST(@GuiaId AS NVARCHAR(10)) + ' no existe.';
+			THROW 50023, @MensajeError, 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 4: Permiso/autorización vigente
+		-- =============================================
+		IF EXISTS (
+			SELECT 1
+			FROM Personal.Guia
+			WHERE GuiaId = @GuiaId
+			  AND VigenciaAutorizacion < CAST(GETDATE() AS DATE)
+		)
+		BEGIN
+			THROW 50024, 'El guía no tiene la autorización vigente para ser asignado.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 5: Horario válido
+		-- =============================================
+		IF @HorarioInicio >= @HorarioFin
+		BEGIN
+			THROW 50025, 'El horario de inicio debe ser menor al horario de fin.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 6: Disponibilidad horaria del guía
+		-- =============================================
+		IF EXISTS (
+			SELECT 1
+			FROM Personal.TourGuia
+			WHERE GuiaId = @GuiaId
+			  AND ParqueId = @ParqueId
+			  AND (@HorarioInicio < HorarioFin AND @HorarioFin > HorarioInicio)
+		)
+		BEGIN
+			THROW 50026, 'El guía no está disponible en el horario indicado.', 1;
+		END;
+
+		-- =============================================
+		-- INSERCIÓN: Asociar guía al tour
+		-- =============================================
+		INSERT INTO Personal.TourGuia
+			(ParqueId, ActividadId, GuiaId, HorarioInicio, HorarioFin)
+		VALUES
+			(@ParqueId, @ActividadId, @GuiaId, @HorarioInicio, @HorarioFin);
+
+		SET @TourGuiaId = SCOPE_IDENTITY();
+
+		PRINT 'Asignación creada exitosamente con ID: ' + CAST(@TourGuiaId AS NVARCHAR(20));
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH
+END;
+GO
 
 -- ------------------------------------------------------------
 -- Personal.uspTourGuiaModificar
@@ -613,8 +840,112 @@ GO
 -- ------------------------------------------------------------
 -- Concesiones.uspConcesionAlta
 -- ------------------------------------------------------------
+CREATE OR ALTER PROCEDURE Concesiones.uspConcesionAlta
+    @ParqueId INT,
+    @Cuit BIGINT,
+    @EmpresaConcesionaria VARCHAR(150),
+    @TipoActividad VARCHAR(100),
+    @FechaInicio DATE,
+    @FechaFin DATE,
+    @CanonMensual DECIMAL(18,6),
+    @ConcesionId INT = NULL OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-    --SP Concesiones.uspConcesionAlta
+    DECLARE @msg NVARCHAR(4000);
+
+    BEGIN TRY
+
+        -- =============================================
+        -- VALIDACIÓN 1: Parque válido
+        -- =============================================
+        IF NOT EXISTS (
+            SELECT 1 
+            FROM Parques.Parque 
+            WHERE ParqueId = @ParqueId AND EsActivo = 1
+        )
+        BEGIN
+            --RAISERROR('Debug error, parque no existe', 0, 1) WITH NOWAIT;
+
+            SET @msg = 
+                'El parque con ID ' 
+                + ISNULL(CAST(@ParqueId AS VARCHAR(10)), 'NULL') 
+                + ' no existe o no está activo.';
+
+            THROW 50001, @msg, 1;
+        END;
+
+        -- =============================================A
+        -- VALIDACIÓN 2: Empresa requerida
+        -- =============================================
+        IF @EmpresaConcesionaria IS NULL 
+           OR LTRIM(RTRIM(@EmpresaConcesionaria)) = ''
+        BEGIN
+            THROW 50002, 
+                'El nombre de la empresa concesionaria no puede estar vacío.', 
+                1;
+        END;
+
+        -- =============================================
+        -- VALIDACIÓN 3: CUIT válido
+        -- =============================================
+        IF @Cuit <= 0
+        BEGIN
+            THROW 50003, 
+                'El CUIT debe ser un número válido.', 
+                1;
+        END;
+
+        -- =============================================
+        -- VALIDACIÓN 4: Fechas
+        -- =============================================
+        IF @FechaInicio >= @FechaFin
+        BEGIN
+            THROW 50004, 
+                'La fecha de inicio debe ser menor que la fecha de fin.', 
+                1;
+        END;
+
+        -- =============================================
+        -- VALIDACIÓN 5: Canon positivo
+        -- =============================================
+        IF @CanonMensual <= 0
+        BEGIN
+            THROW 50005, 
+                'El canon mensual debe ser un valor positivo.', 
+                1;
+        END;
+
+        -- =============================================
+        -- INSERT
+        -- =============================================
+        INSERT INTO Concesiones.Concesion 
+            (ParqueId, Cuit, EmpresaConcesionaria, TipoActividad, FechaInicio, FechaFin, CanonMensual, EsActivo)
+        VALUES 
+            (@ParqueId, @Cuit, @EmpresaConcesionaria, @TipoActividad, @FechaInicio, @FechaFin, @CanonMensual, 1);
+
+        SET @ConcesionId = SCOPE_IDENTITY();
+
+        PRINT 'Concesión creada exitosamente con ID: ' + CAST(@ConcesionId AS VARCHAR);
+
+    END TRY
+
+    BEGIN CATCH
+
+        -- Debug opcional
+        --SELECT 
+        --    ERROR_NUMBER()     AS ErrorNumber,
+        --    ERROR_MESSAGE()    AS ErrorMessage,
+        --    ERROR_LINE()       AS ErrorLine,
+        --    ERROR_PROCEDURE()  AS ErrorProcedure;
+
+        -- Re-lanzar el error original
+        THROW;
+
+    END CATCH
+END;
+GO
 
 -- ------------------------------------------------------------
 -- Concesiones.uspConcesionModificar
@@ -689,10 +1020,98 @@ END
 GO
 
 -- ------------------------------------------------------------
--- Concesiones.uspPagoCanonAlta
+-- Concesiones.uspRegistrarPagoCanon
 -- ------------------------------------------------------------
+CREATE OR ALTER PROCEDURE Concesiones.uspRegistrarPagoCanon
+	@ConcesionId INT,
+	@FechaPago DATETIME = NULL,
+	@PeriodoMes INT,
+	@PeriodoAnio INT,
+	@MontoAbonado DECIMAL(18,6),
+	@PagoCanonId INT = NULL OUTPUT
+AS
+BEGIN
+	SET NOCOUNT ON;
 
-        --SP Concesiones.uspRegistrarPagoCanon
+	DECLARE @MensajeError NVARCHAR(4000);
+	DECLARE @CanonMensual DECIMAL(18,6);
+
+	BEGIN TRY
+		IF @FechaPago IS NULL
+		BEGIN
+			SET @FechaPago = GETDATE();
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 1: La concesión debe existir y estar activa
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Concesiones.Concesion
+			WHERE ConcesionId = @ConcesionId
+			  AND EsActivo = 1
+		)
+		BEGIN
+			SET @MensajeError = 'La concesión con ID ' + CAST(@ConcesionId AS NVARCHAR(10)) + ' no existe o no está activa.';
+			THROW 50001, @MensajeError, 1;
+		END;
+
+		SELECT @CanonMensual = CanonMensual
+		FROM Concesiones.Concesion
+		WHERE ConcesionId = @ConcesionId;
+
+		-- =============================================
+		-- VALIDACIÓN 2: Periodo válido
+		-- =============================================
+		IF @PeriodoMes < 1 OR @PeriodoMes > 12
+		BEGIN
+			THROW 50002, 'El período mes debe estar entre 1 y 12.', 1;
+		END;
+
+		IF @PeriodoAnio < 1900
+		BEGIN
+			THROW 50003, 'El período año debe ser válido.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 3: Monto abonado positivo
+		-- =============================================
+		IF @MontoAbonado <= 0
+		BEGIN
+			THROW 50004, 'El monto abonado debe ser un valor positivo.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIÓN 4: No duplicar el mismo período
+		-- =============================================
+		IF EXISTS (
+			SELECT 1
+			FROM Concesiones.PagoCanon
+			WHERE ConcesionId = @ConcesionId
+			  AND PeriodoMes = @PeriodoMes
+			  AND PeriodoAnio = @PeriodoAnio
+		)
+		BEGIN
+			THROW 50005, 'Ya existe un pago registrado para esa concesión en ese período.', 1;
+		END;
+
+		-- =============================================
+		-- INSERCIÓN: Registrar pago
+		-- =============================================
+		INSERT INTO Concesiones.PagoCanon
+			(ConcesionId, FechaPago, PeriodoMes, PeriodoAnio, MontoAbonado)
+		VALUES
+			(@ConcesionId, @FechaPago, @PeriodoMes, @PeriodoAnio, @MontoAbonado);
+
+		SET @PagoCanonId = SCOPE_IDENTITY();
+
+		PRINT 'Pago de concesión registrado exitosamente con ID: ' + CAST(@PagoCanonId AS NVARCHAR(20));
+	END TRY
+	BEGIN CATCH
+		THROW;
+	END CATCH
+END;
+GO
 
 -- ------------------------------------------------------------
 -- Concesiones.uspPagoCanonModificar
@@ -1065,4 +1484,175 @@ BEGIN
 
     DELETE FROM Ventas.Entrada WHERE EntradaId = @EntradaId;
 END
+GO
+
+
+-- ------------------------------------------------------------
+-- Ventas.uspVentaRegistrar
+-- Registra la venta de entradas y venta de actividades.
+-- ------------------------------------------------------------
+CREATE OR ALTER PROCEDURE Ventas.uspVentaRegistrar
+	@ParqueId INT,
+	@VisitanteId INT,
+	@TipoVisitanteId INT,
+	@FormaDePago CHAR(15),
+	@PuntoVenta INT,
+	@EntradaId INT,
+	@CantidadEntrada INT,
+	@ActividadId INT,
+	@CantidadActividad INT,
+	@VentaId INT = NULL OUTPUT,
+	@NumeroTicket BIGINT = NULL OUTPUT
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @PrecioEntrada DECIMAL(18,6);
+	DECLARE @PrecioActividad DECIMAL(18,6);
+	DECLARE @Descuento DECIMAL(5,2);
+	DECLARE @SubtotalEntrada DECIMAL(18,6);
+	DECLARE @SubtotalActividad DECIMAL(18,6);
+	DECLARE @TotalFacturado DECIMAL(18,6);
+	DECLARE @UltimoTicket BIGINT;
+
+	BEGIN TRY
+		BEGIN TRANSACTION;
+
+		-- =============================================
+		-- VALIDACIONES DE CABECERA
+		-- =============================================
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Parques.Parque
+			WHERE ParqueId = @ParqueId
+			  AND EsActivo = 1
+		)
+		BEGIN
+			THROW 50041, 'El parque no existe o no está activo.', 1;
+		END;
+
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Ventas.TipoVisitante
+			WHERE TipoVisitanteId = @TipoVisitanteId
+		)
+		BEGIN
+			THROW 50042, 'El tipo de visitante no existe.', 1;
+		END;
+
+		IF NOT EXISTS (
+			SELECT 1
+			FROM Ventas.Visitante
+			WHERE VisitanteId = @VisitanteId
+		)
+		BEGIN
+			THROW 50043, 'El visitante no existe.', 1;
+		END;
+
+		IF @CantidadEntrada IS NULL OR @CantidadEntrada <= 0
+		BEGIN
+			THROW 50044, 'La cantidad de entradas debe ser mayor a cero.', 1;
+		END;
+
+		IF @CantidadActividad IS NULL OR @CantidadActividad <= 0
+		BEGIN
+			THROW 50045, 'La cantidad de actividades debe ser mayor a cero.', 1;
+		END;
+
+		IF @EntradaId IS NULL
+		BEGIN
+			THROW 50046, 'Debe informar una entrada para registrar la venta.', 1;
+		END;
+
+		IF @ActividadId IS NULL
+		BEGIN
+			THROW 50047, 'Debe informar una actividad para registrar la venta.', 1;
+		END;
+
+		IF @PuntoVenta IS NULL OR @PuntoVenta <= 0
+		BEGIN
+			THROW 50048, 'El punto de venta debe ser mayor a cero.', 1;
+		END;
+
+		-- =============================================
+		-- VALIDACIONES DE ITEMS
+		-- =============================================
+		SELECT @PrecioEntrada = E.Precio
+		FROM Ventas.Entrada E
+		WHERE E.EntradaId = @EntradaId
+		  AND E.ParqueId = @ParqueId;
+
+		IF @PrecioEntrada IS NULL
+		BEGIN
+			THROW 50049, 'La entrada no existe o no pertenece al parque indicado.', 1;
+		END;
+
+		SELECT @PrecioActividad = A.Valor
+		FROM Parques.Actividad A
+		WHERE A.ActividadId = @ActividadId
+		  AND A.ParqueId = @ParqueId;
+
+		IF @PrecioActividad IS NULL
+		BEGIN
+			THROW 50050, 'La actividad no existe o no pertenece al parque indicado.', 1;
+		END;
+
+		SELECT @Descuento = TV.PorcentajeDescuento
+		FROM Ventas.TipoVisitante TV
+		WHERE TV.TipoVisitanteId = @TipoVisitanteId;
+
+		SET @SubtotalEntrada = (@PrecioEntrada * @CantidadEntrada) * (1 - (@Descuento / 100.0));
+		SET @SubtotalActividad = (@PrecioActividad * @CantidadActividad);
+		SET @TotalFacturado = @SubtotalEntrada + @SubtotalActividad;
+
+		-- =============================================
+		-- CREAR TICKET Y CABECERA VENTA
+		-- =============================================
+		SELECT @UltimoTicket = ISNULL(MAX(V.NumeroTicket), 0)
+		FROM Ventas.Venta V WITH (UPDLOCK, HOLDLOCK)
+		WHERE V.PuntoVenta = @PuntoVenta;
+
+		SET @NumeroTicket = @UltimoTicket + 1;
+
+		INSERT INTO Ventas.Venta
+			(VisitanteId, FormaDePago, PuntoVenta, NumeroTicket, FechaVenta, TotalFacturado)
+		VALUES
+			(@VisitanteId, @FormaDePago, @PuntoVenta, @NumeroTicket, GETDATE(), 0);
+
+		SET @VentaId = SCOPE_IDENTITY();
+
+		-- =============================================
+		-- INSERTAR ITEMS
+		-- =============================================
+		INSERT INTO Ventas.LineaVenta
+			(VentaId, EntradaId, TipoVisitanteId, Cantidad, PrecioUnitario, Subtotal, Descuento)
+		VALUES
+			(@VentaId, @EntradaId, @TipoVisitanteId, @CantidadEntrada, @PrecioEntrada, @SubtotalEntrada, @Descuento);
+
+		INSERT INTO Ventas.LineaActividad
+			(VentaId, ActividadId, Cantidad, PrecioUnitario, Subtotal)
+		VALUES
+			(@VentaId, @ActividadId, @CantidadActividad, @PrecioActividad, @SubtotalActividad);
+
+		-- =============================================
+		-- CALCULAR/CONFIRMAR TOTAL
+		-- =============================================
+		UPDATE Ventas.Venta
+		SET TotalFacturado = @TotalFacturado
+		WHERE VentaId = @VentaId;
+
+		COMMIT TRANSACTION;
+
+		PRINT 'Venta registrada exitosamente. VentaId=' + CAST(@VentaId AS NVARCHAR(20))
+			+ ', Ticket=' + CAST(@NumeroTicket AS NVARCHAR(20));
+	END TRY
+	BEGIN CATCH
+		IF XACT_STATE() <> 0
+		BEGIN
+			ROLLBACK TRANSACTION;
+		END;
+
+		THROW;
+	END CATCH
+END;
 GO
