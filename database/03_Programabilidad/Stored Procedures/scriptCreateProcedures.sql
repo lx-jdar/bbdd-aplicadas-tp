@@ -1404,8 +1404,7 @@ GO
 CREATE OR ALTER PROCEDURE Ventas.uspEntradaModificar(
     @EntradaId   INT,
     @Nombre      VARCHAR(50),
-    @Descripcion VARCHAR(100),
-    @Precio      DECIMAL(18,6)
+    @Descripcion VARCHAR(100)
 )
 AS
 BEGIN
