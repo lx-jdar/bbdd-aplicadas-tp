@@ -39,18 +39,21 @@ GO
 
 IF OBJECT_ID('Parques.Parque', 'U') IS NOT NULL DROP TABLE Parques.Parque;
 CREATE TABLE Parques.Parque (
-    ParqueId      INT IDENTITY(1,1) NOT NULL,
-    Nombre        VARCHAR(100)      NOT NULL,
-    Ubicacion     VARCHAR(250)      NOT NULL,
-    Superficie    DECIMAL(12,2)     NOT NULL,
-    --UIDExterno    VARCHAR(100)      NOT NULL,
-    TipoParque    VARCHAR(15)       NOT NULL,
-    Latitud       DECIMAL(9,6)      NOT NULL,
-    Longitud      DECIMAL(9,6)      NOT NULL,
-    EsActivo      BIT               NOT NULL
+    ParqueId               INT IDENTITY(1,1) NOT NULL,
+    Nombre                 VARCHAR(200)      NOT NULL,
+    Ubicacion              VARCHAR(500)      NULL,
+    Ecorregion             VARCHAR(300)      NULL,
+    Superficie             DECIMAL(12,2)     NULL,
+    TipoParque             VARCHAR(100)      NULL,
+    Latitud                DECIMAL(9,6)      NULL,
+    Longitud               DECIMAL(9,6)      NULL,
+    EsActivo               BIT               NOT NULL,
+    AnioDeclaracion        INT               NULL,
+    Descripcion            NVARCHAR(MAX)     NULL,
+    FuenteImportacion      VARCHAR(100)      NULL,
+    FechaUltimaImportacion DATETIME          NULL
 );
 ALTER TABLE Parques.Parque ADD CONSTRAINT PK_Parque_ParqueId PRIMARY KEY (ParqueId);
-ALTER TABLE Parques.Parque ADD CONSTRAINT CK_Parque_TipoParque CHECK (TipoParque IN ('Nacional', 'Provincial', 'Municipal', 'Reserva'));
 ALTER TABLE Parques.Parque ADD CONSTRAINT DF_Parque_EsActivo DEFAULT 1 FOR EsActivo;
 
 IF OBJECT_ID('Concesiones.Concesion', 'U') IS NOT NULL DROP TABLE Concesiones.Concesion;
@@ -253,6 +256,27 @@ ALTER TABLE Ventas.Entrada
     FOREIGN KEY (ParqueId) REFERENCES Parques.Parque(ParqueId);
 
 -- -----------------------------------------------------------------------------
+-- TABLA: Parques.EstadisticaVisitasNacional
+-- Estadísticas nacionales de visitas a parques, importadas desde datos.yvera.gob.ar
+-- -----------------------------------------------------------------------------
+
+IF OBJECT_ID('Parques.EstadisticaVisitasNacional', 'U') IS NOT NULL DROP TABLE Parques.EstadisticaVisitasNacional;
+CREATE TABLE Parques.EstadisticaVisitasNacional (
+    Anio            INT         NOT NULL,
+    Mes             INT         NOT NULL,
+    OrigenVisitante VARCHAR(20) NOT NULL,
+    CantidadVisitas INT         NOT NULL
+);
+ALTER TABLE Parques.EstadisticaVisitasNacional
+    ADD CONSTRAINT PK_EstadisticaVisitasNacional PRIMARY KEY (Anio, Mes, OrigenVisitante);
+ALTER TABLE Parques.EstadisticaVisitasNacional
+    ADD CONSTRAINT CK_EstadisticaVisitasNacional_Origen
+    CHECK (OrigenVisitante IN ('residentes', 'no_residentes', 'total'));
+ALTER TABLE Parques.EstadisticaVisitasNacional
+    ADD CONSTRAINT CK_EstadisticaVisitasNacional_Mes
+    CHECK (Mes BETWEEN 1 AND 12);
+
+-- -----------------------------------------------------------------------------
 -- ÍNDICES
 -- -----------------------------------------------------------------------------
 
@@ -282,3 +306,67 @@ CREATE NONCLUSTERED INDEX IX_TourGuia_ActividadId
 
 CREATE NONCLUSTERED INDEX IX_TourGuia_GuiaId
     ON Personal.TourGuia(GuiaId);
+
+-- -----------------------------------------------------------------------------
+-- TABLAS DEL ESQUEMA Importacion
+-- -----------------------------------------------------------------------------
+
+IF OBJECT_ID('Importacion.AuditoriaImportacion', 'U') IS NOT NULL DROP TABLE Importacion.AuditoriaImportacion;
+CREATE TABLE Importacion.AuditoriaImportacion (
+    ImportacionId INT            IDENTITY(1,1) NOT NULL,
+    Fuente        VARCHAR(100)   NOT NULL,
+    NombreArchivo NVARCHAR(500)  NOT NULL,
+    FechaInicio   DATETIME       NOT NULL,
+    FechaFin      DATETIME       NULL,
+    FilasLeidas   INT            NULL,
+    FilasValidas  INT            NULL,
+    Insertadas    INT            NULL,
+    Actualizadas  INT            NULL,
+    Rechazadas    INT            NULL,
+    Estado        VARCHAR(20)    NOT NULL,
+    MensajeError  NVARCHAR(2000) NULL
+);
+ALTER TABLE Importacion.AuditoriaImportacion
+    ADD CONSTRAINT PK_AuditoriaImportacion PRIMARY KEY (ImportacionId);
+ALTER TABLE Importacion.AuditoriaImportacion
+    ADD CONSTRAINT CK_AuditoriaImportacion_Estado
+    CHECK (Estado IN ('EN_PROCESO', 'OK', 'CON_ERRORES', 'FALLIDO'));
+
+IF OBJECT_ID('Importacion.StgAreasProtegidasExcel', 'U') IS NOT NULL DROP TABLE Importacion.StgAreasProtegidasExcel;
+CREATE TABLE Importacion.StgAreasProtegidasExcel (
+    StgId           INT           IDENTITY(1,1) NOT NULL,
+    ImportacionId   INT           NOT NULL,
+    NombreRaw       NVARCHAR(300) NULL,
+    Localizacion    NVARCHAR(500) NULL,
+    Ecorregion      NVARCHAR(300) NULL,
+    AnioCreacionRaw NVARCHAR(100) NULL,
+    SuperficieRaw   NVARCHAR(50)  NULL,
+    Caracteristicas NVARCHAR(MAX) NULL
+);
+ALTER TABLE Importacion.StgAreasProtegidasExcel
+    ADD CONSTRAINT PK_StgAreasProtegidasExcel PRIMARY KEY (StgId);
+
+IF OBJECT_ID('Importacion.StgAreasProtegidasGeoJson', 'U') IS NOT NULL DROP TABLE Importacion.StgAreasProtegidasGeoJson;
+CREATE TABLE Importacion.StgAreasProtegidasGeoJson (
+    StgId          INT           IDENTITY(1,1) NOT NULL,
+    ImportacionId  INT           NOT NULL,
+    GidIGN         INT           NULL,
+    NombreCompleto NVARCHAR(300) NULL,
+    TipoGenerico   NVARCHAR(200) NULL,
+    NombreCorto    NVARCHAR(200) NULL,
+    BboxLonMin     DECIMAL(12,8) NULL,
+    BboxLatMin     DECIMAL(12,8) NULL,
+    BboxLonMax     DECIMAL(12,8) NULL,
+    BboxLatMax     DECIMAL(12,8) NULL,
+    LatitudCalc    DECIMAL(9,6)  NULL,
+    LongitudCalc   DECIMAL(9,6)  NULL
+);
+ALTER TABLE Importacion.StgAreasProtegidasGeoJson
+    ADD CONSTRAINT PK_StgAreasProtegidasGeoJson PRIMARY KEY (StgId);
+
+IF OBJECT_ID('Importacion.StgEstadisticasVisitas', 'U') IS NOT NULL DROP TABLE Importacion.StgEstadisticasVisitas;
+CREATE TABLE Importacion.StgEstadisticasVisitas (
+    IndicieTiempo   VARCHAR(20) NULL,
+    OrigenVisitante VARCHAR(30) NULL,
+    Visitas         VARCHAR(15) NULL
+);
