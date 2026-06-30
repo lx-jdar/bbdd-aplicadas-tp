@@ -148,13 +148,7 @@ GO
 
 -- =============================================================================
 -- SP 2: Ingresos por parque por semana, mes y año
--- Suma: entradas + tours/actividades + canon de concesiones
 -- Parámetro @Periodo: 'S' = Semana | 'M' = Mes | 'A' = Año | '' = los tres
---
--- CORRECCIÓN respecto a la versión original:
---   El ingreso por actividades se deriva de LineaActividad → Actividad → Parque,
---   sin pasar por LineaVenta. La versión anterior cruzaba ambas tablas
---   produciendo un producto cartesiano que inflaba los montos.
 -- =============================================================================
 
 CREATE OR ALTER PROCEDURE Ventas.usrReporteIngresos (
@@ -464,9 +458,6 @@ GO
 
 -- =============================================================================
 -- SP 3: Deudores - Concesiones atrasadas en los pagos (retorna XML)
--- Lógica: una concesión está atrasada si existe algún mes entre su FechaInicio
--- y GETDATE() (o FechaFin si ya venció) para el que no hay registro en PagoCanon.
--- Se calcula la deuda como: meses_adeudados × CanonMensual.
 -- =============================================================================
 
 CREATE OR ALTER PROCEDURE Concesiones.usrReporteDeudores
@@ -474,105 +465,59 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- CTE: genera todos los meses que cada concesión debería haber pagado
-    -- hasta la fecha actual (o hasta FechaFin si ya terminó el contrato).
-    ;WITH MesesEsperados AS (
-        SELECT
-            Con.ConcesionId,
-            Con.ParqueId,
-            Con.EmpresaConcesionaria,
-            Con.TipoActividad,
-            Con.CanonMensual,
-            Con.FechaInicio,
-            Con.FechaFin,
-            -- Primer mes a cobrar
-            YEAR(Con.FechaInicio)  AS AnioMes,
-            MONTH(Con.FechaInicio) AS NroMes
-        FROM Concesiones.Concesion Con
-        WHERE Con.FechaInicio <= GETDATE()   -- concesiones que ya arrancaron
-
-        UNION ALL
-
-        -- Recursión: avanza mes a mes hasta min(hoy, FechaFin)
-        SELECT
-            ME.ConcesionId,
-            ME.ParqueId,
-            ME.EmpresaConcesionaria,
-            ME.TipoActividad,
-            ME.CanonMensual,
-            ME.FechaInicio,
-            ME.FechaFin,
-            YEAR(DATEADD(MONTH, 1, DATEFROMPARTS(ME.AnioMes, ME.NroMes, 1))),
-            MONTH(DATEADD(MONTH, 1, DATEFROMPARTS(ME.AnioMes, ME.NroMes, 1)))
-        FROM MesesEsperados ME
-        WHERE DATEFROMPARTS(ME.AnioMes, ME.NroMes, 1)
-              < DATEFROMPARTS(
-                    YEAR(CASE WHEN Me.FechaFin < GETDATE() THEN Me.FechaFin ELSE GETDATE() END),
-                    MONTH(CASE WHEN Me.FechaFin < GETDATE() THEN Me.FechaFin ELSE GETDATE() END),
-                    1
-                )
+    -- Uso de tablas CTE para expandir los meses
+    WITH Base AS ( --Devuelve las concesiones que ya iniciaron, por lo tanto pueden tener deudas
+        SELECT *
+        FROM Concesiones.Concesion
+        WHERE FechaInicio <= GETDATE()
     ),
-    -- CTE: meses adeudados = meses esperados sin pago registrado
-    MesesAdeudados AS (
+    Meses AS ( --Devuelve todas las concesiones separadas por meses
         SELECT
-            ME.ConcesionId,
-            ME.ParqueId,
-            ME.EmpresaConcesionaria,
-            ME.TipoActividad,
-            ME.CanonMensual,
-            ME.FechaInicio,
-            ME.FechaFin,
-            ME.AnioMes,
-            ME.NroMes
-        FROM MesesEsperados ME
-        WHERE NOT EXISTS (
-            SELECT 1
-            FROM Concesiones.PagoCanon PC
-            WHERE PC.ConcesionId = ME.ConcesionId
-              AND PC.PeriodoAnio = ME.AnioMes
-              AND PC.PeriodoMes  = ME.NroMes
-        )
-    ),
-    -- CTE: resumen de deuda por concesión
-    ResumenDeuda AS (
-        SELECT
-            MA.ConcesionId,
-            MA.ParqueId,
-            Parque.Nombre                      AS NombreParque,
-            MA.EmpresaConcesionaria,
-            MA.TipoActividad,
-            MA.CanonMensual,
-            MA.FechaInicio,
-            MA.FechaFin,
-            COUNT(*)                           AS MesesAdeudados,
-            COUNT(*) * MA.CanonMensual         AS MontoTotalAdeudado,
-            MIN(DATEFROMPARTS(MA.AnioMes, MA.NroMes, 1)) AS PrimerMesAdeudado
-        FROM MesesAdeudados MA
-        JOIN Parques.Parque Parque ON Parque.ParqueId = MA.ParqueId
-        GROUP BY
-            MA.ConcesionId,
-            MA.ParqueId,
-            Parque.Nombre,
-            MA.EmpresaConcesionaria,
-            MA.TipoActividad,
-            MA.CanonMensual,
-            MA.FechaInicio,
-            MA.FechaFin
+            b.ConcesionId,
+            b.ParqueId,
+            b.EmpresaConcesionaria,
+            b.CanonMensual,
+            b.TipoActividad,
+            b.FechaInicio,
+            b.FechaFin,
+            DATEADD(MONTH, g.value, DATEFROMPARTS(YEAR(b.FechaInicio), MONTH(b.FechaInicio), 1)) AS Fecha,
+            YEAR(DATEADD(MONTH, g.value, DATEFROMPARTS(YEAR(b.FechaInicio), MONTH(b.FechaInicio), 1))) AS Anio,
+            MONTH(DATEADD(MONTH, g.value, DATEFROMPARTS(YEAR(b.FechaInicio), MONTH(b.FechaInicio), 1))) AS Mes
+        FROM Base b
+        CROSS APPLY GENERATE_SERIES( --Usa generate_series para generar tantos numeros como meses haya entre el inicio de concesion y hoy o su fin
+            0,
+            DATEDIFF(MONTH, b.FechaInicio, 
+                     CASE WHEN b.FechaFin < GETDATE() THEN b.FechaFin ELSE GETDATE() END)
+        ) g
     )
-    SELECT
+    
+    
+    SELECT 
         ConcesionId,
-        ParqueId,
-        NombreParque,
+        P.ParqueId,
+        p.Nombre,
         EmpresaConcesionaria,
         TipoActividad,
-        CanonMensual,
         FechaInicio,
         FechaFin,
-        MesesAdeudados,
-        MontoTotalAdeudado,
-        PrimerMesAdeudado
-    FROM ResumenDeuda
-    ORDER BY MontoTotalAdeudado DESC
+        CanonMensual,
+        SUM(M.CanonMensual) OVER (PARTITION BY M.ConcesionId ORDER BY M.ANIO, M.MES
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+            ) AS ImporteAcumulado,
+        SUM(CanonMensual) OVER (PARTITION BY P.parqueID, ConcesionID) AS ImporteTotal,
+        Anio,
+        Mes
+    FROM Meses M
+    LEFT JOIN Parques.Parque P ON M.ParqueId = P.ParqueId
+    WHERE 
+        NOT EXISTS ( --Excluye los meses en los que se realizo el pago
+            SELECT 1 
+            FROM Concesiones.PagoCanon PC 
+            WHERE PC.ConcesionId = M.ConcesionId 
+                AND PC.PeriodoAnio = M.ANIO 
+                AND PC.PeriodoMes = M.MES
+        )
+    ORDER BY ConcesionId, ANIO, MES
     FOR XML PATH('Concesion'), ROOT('Deudores'), TYPE;
 END
 GO
@@ -580,8 +525,7 @@ GO
 
 -- =============================================================================
 -- SP 4: Matriz de visitas - PIVOT por mes y parque
--- Columnas: Parque | Ene | Feb | Mar | Apr | May | Jun | Jul | Ago | Sep | Oct | Nov | Dic | Total
--- Parámetro opcional @Anio: filtra por año (NULL = año en curso)
+-- Parámetro @Anio. Si no se especifica toma el año en curso
 -- =============================================================================
 
 CREATE OR ALTER PROCEDURE Ventas.usrMatrizVisitas (
@@ -615,7 +559,6 @@ BEGIN
             + ISNULL([7],  0) + ISNULL([8],  0) + ISNULL([9],  0)
             + ISNULL([10], 0) + ISNULL([11], 0) + ISNULL([12], 0) AS TotalAnual
     FROM (
-        -- Base: visitantes por mes y parque (contados por LineaVenta.Cantidad)
         SELECT
             Parque.ParqueId,
             Parque.Nombre          AS NombreParque,
@@ -639,8 +582,6 @@ GO
 
 -- =============================================================================
 -- SP 5: Parques y concesiones - listado con concesiones anidadas (retorna XML)
--- Muestra cada parque con un vector anidado de sus concesiones y el estado
--- de pago (al día / atrasada), cumpliendo el requisito de XML de la entrega.
 -- =============================================================================
 
 CREATE OR ALTER PROCEDURE Parques.usrParquesConcesiones
@@ -666,7 +607,7 @@ BEGIN
                     WHEN C.EsActivo = 0                       THEN 'Inactiva'
                     ELSE 'Vigente'
                 END                                         AS [Estado],
-                -- Último pago registrado
+                -- segun ultimo pago registrado
                 (
                     SELECT TOP 1
                         CONVERT(VARCHAR(10), PC2.FechaPago, 23)
@@ -674,12 +615,6 @@ BEGIN
                     WHERE PC2.ConcesionId = C.ConcesionId
                     ORDER BY PC2.FechaPago DESC
                 )                                           AS [UltimoPago]
-                -- Meses adeudados (simplificado: diferencia entre hoy y último pago)
-                /*(
-                    SELECT COUNT(*)
-                    FROM Concesiones.PagoCanon PC3
-                    WHERE PC3.ConcesionId = C.ConcesionId
-                )                                           AS [CantidadPagosRegistrados]*/
             FROM Concesiones.Concesion C
             WHERE C.ParqueId = P.ParqueId
             ORDER BY C.FechaInicio
