@@ -1303,23 +1303,23 @@ GO
 PRINT '';
 PRINT '--- TEST: Ventas.uspTipoVisitanteBaja ---';
 
--- CASO: ERROR - tipo con ventas asociadas (TipoVisitanteId = 1 tiene LineaVenta)
--- Resultado esperado: THROW indicando dependencias.
+-- CASO: ERROR - ID inexistente
+-- Resultado esperado: THROW indicando que el tipo no existe.
 BEGIN TRY
-    EXEC Ventas.uspTipoVisitanteBaja 1;
-    PRINT '[FAIL] No se lanzo el error de dependencias.';
+    EXEC Ventas.uspTipoVisitanteBaja 99999;
+    PRINT '[FAIL] No se lanzo el error esperado.';
 END TRY
 BEGIN CATCH
     PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
 END CATCH;
 GO
 
--- CASO: EXITOSO - eliminar el tipo de prueba (sin ventas)
+-- CASO: EXITOSO - dar de baja el tipo de prueba (tiene ventas: valida que el soft delete no bloquea)
 DECLARE @TvId INT;
 SELECT @TvId = TipoVisitanteId FROM Ventas.TipoVisitante WHERE Nombre = 'Ex Combatiente';
 BEGIN TRY
     EXEC Ventas.uspTipoVisitanteBaja @TvId;
-    PRINT '[OK - EXITOSO] TipoVisitante eliminado correctamente.';
+    PRINT '[OK - EXITOSO] TipoVisitante dado de baja correctamente.';
 END TRY
 BEGIN CATCH
     PRINT '[FAIL] ' + ERROR_MESSAGE();
