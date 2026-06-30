@@ -28,61 +28,58 @@ datos públicos y reportes.
 
 ```
 database/
-├── 00_Setup/               ← definición de la base de datos (ejecutar en orden)
+├── 00_Setup/               ← configuración inicial de conexión
 ├── 01_DDL/                 ← definición de la base de datos (ejecutar en orden)
 ├── 02_Seguridad/           ← Login, Usuarios y Permisos
-├── 03_Programabilidad/     ← stored procedures abm business (E5)
-├── 04_Data/                ← inicializacion de datos de la tabla (E5)
-├── 05_Imports/             ← stored procedures de impotación (E6)
+├── 03_Programabilidad/     ← funciones, stored procedures y vistas
+├── 04_Data/                ← datos semilla (seed)
+├── 05_Imports/             ← stored procedures de importación (E6)
+│   ├── gobar/              ← estadísticas de visitas (data.gob.ar)
+│   ├── ign/                ← áreas protegidas GeoJSON (IGN)
+│   └── indec/              ← áreas protegidas Excel (INDEC)
 ├── 06_Reportes/            ← stored procedures de reportes (E7)
-└── 07_Testing/             ← scripts de testing 1:1 con cada script de SPs (E5, E6...)
-datasets/                   ← archivos CSV/XML de datos externos
-docs/                       ← documentación (norma de nomenclatura, DER)
+└── 07_Testing/             ← scripts de testing
+scripts/
+└── runAll.sql              ← inicialización completa (DDL → programabilidad → testing)
+CONVENCIONES.md             ← convenciones de desarrollo del proyecto
 ```
 
-## Orden de ejecución — inicialización completa (database/ddl/)
+## Orden de ejecución — inicialización completa
+
+Usar `scripts/runAll.sql` para ejecutar todo en orden desde SQLCMD, o bien ejecutar manualmente:
 
 | # | Script | Entrega | Contenido |
 |---|--------|---------|-----------|
-| — | `00_teardown.sql` | — | Elimina la base existente (si existe) |
-| 1 | `01_base_esquemas.sql` | E5 | Crea la base `GestionParquesNacionales` y los esquemas |
-| 2 | `02_tablas.sql` | E5 | Todas las tablas + restricciones + índices |
-| 3 | `Schema.[NombreSP].sql` | E5 | Stored procedures ABM de todas las entidades |
-| 4 | `Schema.[NombreSP].sql` | E5 | SPs de lógica de negocio (transaccionales) |
-| 5 | `Schema.[NombreFuncion].sql` | E5 | Funciones escalares y de tabla |
-| 6 | `Schema.[NombreVista].sql` | E5 | Vistas del sistema |
-| 7 | `Roles.sql` | E8 | Roles y permisos granulares |
-| 8 | `Cifrado.sql` | E8 | Cifrado de datos sensibles |
-| 9 | `datos_iniciales.sql` | E9 | Juego de datos inicial (seed) |
+| — | `01_DDL/00_teardown.sql` | — | Elimina la base existente (si existe) |
+| 1 | `01_DDL/01_base_esquemas.sql` | E5 | Crea la base `GestionParquesNacionales` y los esquemas |
+| 2 | `01_DDL/02_tablas.sql` | E5 | Todas las tablas + restricciones + índices |
+| 3 | `03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql` | E5 | Funciones escalares |
+| 4 | `03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql` | E5 | Stored procedures ABM y de negocio |
+| 5 | `03_Programabilidad/Views/Parques.vwClientOrders.sql` | E5 | Vistas |
+| 6 | `04_Data/datos_iniciales.sql` | E9 | Datos semilla |
+| 7 | `05_Imports/*/Parques.usp*.sql` | E6 | SPs de importación masiva (upsert, sin duplicados) |
+| 8 | `06_Reportes/scriptReportes.sql` | E7 | SPs de reportes |
+| 9 | `02_Seguridad/Roles.sql` | E8 | Roles y permisos granulares |
+| 10 | `02_Seguridad/Cifrado.sql` | E8 | Cifrado de datos sensibles |
 
-## Scripts independientes (no forman parte de la inicialización)
+## Testing
 
-| Script | Entrega | Contenido |
-|--------|---------|-----------|
-| `importacion/sp_importacion.sql` | E6 | SPs de importación masiva (upsert, sin duplicados) |
-| `reportes/sp_reportes.sql` | E7 | SPs de reportes (al menos dos retornan XML) |
+| Script de testing (`07_Testing/`) | Cubre |
+|---|---|
+| `test_sp_abm.sql` | SPs ABM de todas las entidades (`scriptCreateProcedures.sql`) |
+| `test_sp_negocio.sql` | SPs de lógica de negocio |
+| `test_Personal.uspAsignarGuia.sql` | `Personal.uspAsignarGuia` |
+| `test_importacion.sql` | SPs de importación (`05_Imports/`) |
+| `test_reportes.sql` | SPs de reportes (`06_Reportes/scriptReportes.sql`) |
 
-> Estos scripts se ejecutan una vez que la base está inicializada (luego del paso 9).
-
-## Testing (1:1 con los scripts de SPs)
-
-| Script de testing (07_Testing) | Cubre (03_Programabilidad/Stored Procedures/) |
-|-------------------|-------|
-| `test_Concesiones.uspConcesionCreate.sql` | `Concesiones.uspConcesionCreate.sql` |
-| `test_Concesiones.uspConcesionPagoRegister.sql` | `Concesiones.uspConcesionPagoRegister.sqll` |
-| `test_Personal.uspGuardaparqueAsignarParque.sql` | `Personal.uspGuardaparqueAsignarParque.sql` |
-| `test_Personal.uspTourAsignarGuia.sql` | `Personal.uspTourAsignarGuia.sql` |
-| | `scriptCreateProcedures.sql` |
-| `test_Ventas.uspVentaRegistrar.sql` | `Ventas.uspVentaRegistrar.sql` |
-
-La **norma de nomenclatura** está en [docs/norma-nomenclatura.md](../docs/norma-nomenclatura.md).
+La **norma de nomenclatura** está en [CONVENCIONES.md](CONVENCIONES.md).
 
 ## Entregas
 
 | Entrega | Contenido | Estado |
 | --- | --- | --- |
-| E5 | Base de datos + SPs ABM y de negocio | En progreso |
-| E6 | Proceso de importación (upsert, sin duplicados) | Pendiente |
-| E7 | Reportes (al menos 2 retornan XML) | Pendiente |
+| E5 | Base de datos + SPs ABM y de negocio | Completada |
+| E6 | Proceso de importación (upsert, sin duplicados) | Completada |
+| E7 | Reportes (al menos 2 retornan XML) | En progreso |
 | E8 | Seguridad (cifrado + roles + backup) | Pendiente |
 | E9 | BI + aplicación + datos semilla (≥10 parques, 30 actividades, 20 guías…) | Pendiente |
