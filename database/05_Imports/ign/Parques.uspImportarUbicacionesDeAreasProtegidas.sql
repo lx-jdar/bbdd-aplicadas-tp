@@ -38,14 +38,6 @@ Objetivo: Importación de coordenadas de referencia (Latitud / Longitud) para
             - Copiar areas_protegida_geo.geojson a C:\datasets\ en el servidor SQL Server.
             - La cuenta de servicio de SQL Server debe tener permiso de lectura sobre C:\datasets\.
 
-          Nota sobre encoding:
-            El GeoJSON está codificado en UTF-8. OPENROWSET BULK SINGLE_CLOB
-            lee el archivo con el codepage del servidor (tipicamente Latin1).
-            Los caracteres con tilde pueden no leerse correctamente en servidores
-            con collation Latin1. En ese caso, convertir el archivo a ANSI/Latin-1
-            antes de importar con PowerShell:
-            $c = Get-Content 'C:\datasets\areas_protegida_geo.geojson' -Encoding UTF8 -Raw
-            [IO.File]::WriteAllText('C:\datasets\areas_protegida_geo.geojson', $c, [Text.Encoding]::GetEncoding(1252))
 ============================================================ */
 
 USE GestionParquesNacionales;
