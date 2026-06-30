@@ -19,9 +19,7 @@
   </Folder>
 
   <Folder Name="/02_Seguridad/">
-    <File Path="database/02_Seguridad/01_Roles.sql" />
-	  <File Path="database/02_Seguridad/02_Logins.sql" />
-	  <File Path="database/02_Seguridad/03_Users.sql" />
+    <File Path="database/02_Seguridad/scriptCreateSeguridad.sql" />
 	  <File Path="database/02_Seguridad/Cifrado.sql" />	
     <File Path="database/02_Seguridad/Permisos.sql" />
   </Folder>

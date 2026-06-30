@@ -15,7 +15,7 @@ Objetivo: Carga inicial de datos (seed): parques, actividades, guias,
 
 PRINT 'Inicio de Ejecución de Scripts...'
 
-:OUT ver-resultado-completo-bda.log
+:OUT "GestionParquesNacionales/ver-resultado-completo-bda.log"
 
 PRINT 'Creando base de datos...'
 
