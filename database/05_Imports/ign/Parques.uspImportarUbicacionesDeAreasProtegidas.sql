@@ -13,6 +13,7 @@ Objetivo: Importación de coordenadas de referencia (Latitud / Longitud) para
           del Instituto Geográfico Nacional (Fuente 2).
 
           Fuente: Instituto Geográfico Nacional (IGN)
+          Descarga: https://www.ign.gob.ar/NuestrasActividades/InformacionGeoespacial/CapasSIG
           Capa:   Áreas Protegidas  (area_protegida)
           Archivo: areas_protegida_geo.geojson
           Total de features: 506 (áreas de todas las jurisdicciones)

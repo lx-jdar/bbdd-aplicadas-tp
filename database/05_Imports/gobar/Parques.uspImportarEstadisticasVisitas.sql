@@ -12,6 +12,7 @@ Objetivo: Importación masiva de estadísticas históricas de visitas a parques
           nacionales desde el dataset del Ministerio de Turismo (Fuente 3).
 
           Fuente: datos.yvera.gob.ar - Serie tiempo parques nacionales
+          Descarga: https://datos.yvera.gob.ar/dataset/458bcbe1-855c-4bc3-a1c9-cd4e84fedbbc/resource/a570af75-ed33-427c-9797-980fc0cd8fd1/download/visitas.csv
           Archivo: visitas.csv
 
           Formato CSV (encabezado, separado por coma, ANSI/Latin-1):

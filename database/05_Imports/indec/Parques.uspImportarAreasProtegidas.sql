@@ -12,6 +12,7 @@ Objetivo: Importación masiva del catálogo de áreas protegidas desde el archiv
           XLSX del INDEC/APN.
 
           Fuente: INDEC - Anuario Estadístico 2024, cuadro 3.1.29
+          Descarga: https://anuario.indec.gob.ar/Condiciones%20y%20calidad%20ambientales/030129.xlsx
           Archivo: C:\datasets\areas_protegidas.xlsx
           Hoja:    030129
 
