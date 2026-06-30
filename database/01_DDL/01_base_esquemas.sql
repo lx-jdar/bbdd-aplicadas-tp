@@ -8,28 +8,37 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: 17/06/2026
-Objetivo: Creacion de la base de datos y esquemas con validacion de existencia previa.
+Objetivo: Creacion de la base de datos y esquemas. Vuelve al estado inicial para crear las tablas.
 ============================================================ */
-IF DB_ID('GestionParquesNacionales') IS NULL
-    CREATE DATABASE GestionParquesNacionales;
+USE master;
 GO
 
 IF DB_ID('GestionParquesNacionales') IS NOT NULL
 BEGIN
+    ALTER DATABASE GestionParquesNacionales
+        SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+        -- Corta las conexiones activas y deshace transacciones en curso
+        -- para que el DROP no falle por la base en uso.
 
-    USE GestionParquesNacionales;
+    DROP DATABASE GestionParquesNacionales;
+END
+GO
 
-    DROP SCHEMA IF EXISTS Parques;
-    DROP SCHEMA IF EXISTS Ventas;
-    DROP SCHEMA IF EXISTS Concesiones;
-    DROP SCHEMA IF EXISTS Personal;
-    DROP SCHEMA IF EXISTS Importacion;
+CREATE DATABASE GestionParquesNacionales;
+GO
 
-    EXEC('CREATE SCHEMA Parques');
-    EXEC('CREATE SCHEMA Personal');
-    EXEC('CREATE SCHEMA Concesiones');
-    EXEC('CREATE SCHEMA Ventas');
-    EXEC('CREATE SCHEMA Importacion');
+USE GestionParquesNacionales;
 
-END;
+DROP SCHEMA IF EXISTS Parques;
+DROP SCHEMA IF EXISTS Ventas;
+DROP SCHEMA IF EXISTS Concesiones;
+DROP SCHEMA IF EXISTS Personal;
+DROP SCHEMA IF EXISTS Importacion;
+
+EXEC('CREATE SCHEMA Parques');
+EXEC('CREATE SCHEMA Personal');
+EXEC('CREATE SCHEMA Concesiones');
+EXEC('CREATE SCHEMA Ventas');
+EXEC('CREATE SCHEMA Importacion');
+
 GO

@@ -626,3 +626,26 @@ BEGIN
 
 END
 GO
+
+
+-- =============================================================================
+-- SP 6: Actividades mas demandadas
+-- =============================================================================
+CREATE OR ALTER PROCEDURE Ventas.usrVisitantesPorParque
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        P.ParqueId,
+        P.Nombre AS Parque,
+        A.Nombre AS Actividad,
+        SUM(Cantidad) AS CantActividad
+    FROM Ventas.LineaActividad LA
+    JOIN Parques.Actividad A ON LA.ActividadId = A.ActividadId
+    JOIN Parques.Parque P ON A.ParqueId = P.ParqueId
+    GROUP BY P.ParqueId, P.Nombre, A.Nombre
+    ORDER BY P.ParqueId
+
+END
+GO
