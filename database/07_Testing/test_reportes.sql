@@ -39,26 +39,32 @@ GO
 -- P9: Jun=3
 -- P10: Jun=4
 PRINT 'TEST 1.1 - Visitas semanales (@Periodo = ''S'')';
-EXEC Ventas.usrReporteVisitas @Periodo = 'S';
+EXEC Ventas.usrReporteVisitas 'S';
 GO
  
 PRINT 'TEST 1.2 - Visitas mensuales (@Periodo = ''M'')';
-EXEC Ventas.usrReporteVisitas @Periodo = 'M';
+EXEC Ventas.usrReporteVisitas 'M';
 GO
  
 -- Esperado TEST 1.3 (anual) - CantidadVisitantes por ParqueId:
 -- P1=6, P2=1, P3=7, P4=1, P5=3, P6=1, P7=2, P8=2, P9=3, P10=4
 PRINT 'TEST 1.3 - Visitas anuales (@Periodo = ''A'')';
-EXEC Ventas.usrReporteVisitas @Periodo = 'A';
+EXEC Ventas.usrReporteVisitas 'A';
 GO
  
 PRINT 'TEST 1.4 - Todos los periodos (@Periodo = '''' / default)';
-EXEC Ventas.usrReporteVisitas @Periodo = '';
+EXEC Ventas.usrReporteVisitas '';
 GO
  
 -- Esperado: RAISERROR (parámetro inválido), sin resultset.
 PRINT 'TEST 1.5 - Parámetro inválido (debe lanzar error)';
-EXEC Ventas.usrReporteVisitas @Periodo = 'X';
+BEGIN TRY
+    EXEC Ventas.usrReporteVisitas 'X';
+    PRINT '[FAIL] No se lanzo el error esperado.';
+END TRY
+BEGIN CATCH
+    PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
+END CATCH;
 GO
  
  
@@ -68,7 +74,7 @@ PRINT '==========================================================';
 GO
  
 PRINT 'TEST 2.1 - Ingresos semanales (@Periodo = ''S'')';
-EXEC Ventas.usrReporteIngresos @Periodo = 'S';
+EXEC Ventas.usrReporteIngresos 'S';
 GO
  
 -- Esperado TEST 2.2 (mensual) - IngresoEntradas / IngresoActividades / IngresoConcesiones por ParqueId/Mes:
@@ -83,7 +89,7 @@ GO
 -- P9: Jun(150000/35000/0)
 -- P10: Jun(134000/140000/0)
 PRINT 'TEST 2.2 - Ingresos mensuales (@Periodo = ''M'')';
-EXEC Ventas.usrReporteIngresos @Periodo = 'M';
+EXEC Ventas.usrReporteIngresos 'M';
 GO
  
 -- Esperado TEST 2.3 (anual) - IngresoEntradas / IngresoActividades / IngresoConcesiones / IngresoTotal:
@@ -98,15 +104,23 @@ GO
 -- P9:  150000.00 /   35000.00 /      0.00 /  185000.00
 -- P10: 134000.00 /  140000.00 /      0.00 /  274000.00
 PRINT 'TEST 2.3 - Ingresos anuales (@Periodo = ''A'')';
-EXEC Ventas.usrReporteIngresos @Periodo = 'A';
+EXEC Ventas.usrReporteIngresos 'A';
 GO
  
 PRINT 'TEST 2.4 - Todos los periodos (@Periodo = '''' / default)';
-EXEC Ventas.usrReporteIngresos @Periodo = '';
+EXEC Ventas.usrReporteIngresos '';
 GO
  
 PRINT 'TEST 2.5 - Parámetro inválido (debe lanzar error)';
-EXEC Ventas.usrReporteIngresos @Periodo = 'Z';
+
+PRINT 'TEST 1.5 - Parámetro inválido (debe lanzar error)';
+BEGIN TRY
+    EXEC Ventas.usrReporteIngresos 'Z';
+    PRINT '[FAIL] No se lanzo el error esperado.';
+END TRY
+BEGIN CATCH
+    PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
+END CATCH;
 GO
  
  
@@ -180,12 +194,12 @@ EXEC Ventas.usrMatrizVisitas;
 GO
  
 PRINT 'TEST 4.2 - Matriz de visitas con @Anio = 2026 (explícito, idéntico a 4.1)';
-EXEC Ventas.usrMatrizVisitas @Anio = 2026;
+EXEC Ventas.usrMatrizVisitas 2026;
 GO
  
 -- Esperado: 0 filas (no hay ventas en 2020).
 PRINT 'TEST 4.3 - Matriz de visitas para año sin datos (@Anio = 2020, espera 0 filas)';
-EXEC Ventas.usrMatrizVisitas @Anio = 2020;
+EXEC Ventas.usrMatrizVisitas 2020;
 GO
  
  
@@ -244,5 +258,5 @@ GO
 --   P10: Tour Lago Puelo en Catamarán=2
 -- (El valor 15 de "Tour Sendero Macuco" corresponde al caso de cupo completo del seed.)
 PRINT 'TEST 6.1 - Actividades más demandadas por parque';
-EXEC Ventas.usrVisitantesPorParque;
+EXEC Ventas.usrReporteDemandaActividades;
 GO
