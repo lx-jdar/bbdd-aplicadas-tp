@@ -881,9 +881,21 @@ BEGIN CATCH
 END CATCH;
 GO
 
--- CASO: EXITOSO
+-- CASO: EXITOSO - modifica concesion de prueba creada en este bloque
 DECLARE @ConcesionId INT;
-SELECT @ConcesionId = ConcesionId FROM Concesiones.Concesion WHERE EmpresaConcesionaria = 'Patagonia Gastro SRL';
+
+-- Setup: limpiar residuos de ejecuciones anteriores, luego crear concesion de prueba
+DELETE FROM Concesiones.Concesion WHERE Cuit = 20100200300;
+EXEC Concesiones.uspConcesionAlta
+    @ParqueId             = 1,
+    @Cuit                 = 20100200300,
+    @EmpresaConcesionaria = 'Patagonia Gastro SRL',
+    @TipoActividad        = 'Gastronomia',
+    @FechaInicio          = '2026-01-01',
+    @FechaFin             = '2028-12-31',
+    @CanonMensual         = 60000.00,
+    @ConcesionId          = @ConcesionId OUTPUT;
+
 BEGIN TRY
     EXEC Concesiones.uspConcesionModificar
         @ConcesionId, 'Patagonia Gastro SRL Modificada', 'Gastronomia Premium', '2026-07-01', '2030-06-30', 65000.00;
@@ -934,6 +946,10 @@ END TRY
 BEGIN CATCH
     PRINT '[OK - ERROR ESPERADO] ' + ERROR_MESSAGE();
 END CATCH;
+GO
+
+-- Limpieza: eliminar la concesion de prueba creada en tests Modify/Baja
+DELETE FROM Concesiones.Concesion WHERE Cuit = 20100200300;
 GO
 
 -- ============================================================
@@ -1171,11 +1187,21 @@ BEGIN CATCH
 END CATCH;
 GO
 
--- CASO: EXITOSO - corregir el monto del pago recien insertado
+-- CASO: EXITOSO - modifica pago de prueba creado en este bloque
 DECLARE @PagoId INT;
-SELECT @PagoId = PagoCanonId FROM Concesiones.PagoCanon WHERE ConcesionId = 1 AND PeriodoMes = 7 AND PeriodoAnio = 2026;
+
+-- Setup: eliminar si existe y crear pago de prueba para período 7/2026
+DELETE FROM Concesiones.PagoCanon WHERE ConcesionId = 1 AND PeriodoMes = 7 AND PeriodoAnio = 2026;
+EXEC Concesiones.uspRegistrarPagoCanon
+    @ConcesionId  = 1,
+    @FechaPago    = '2026-07-05',
+    @PeriodoMes   = 7,
+    @PeriodoAnio  = 2026,
+    @MontoAbonado = 75000.00,
+    @PagoCanonId  = @PagoId OUTPUT;
+
 BEGIN TRY
-    EXEC Concesiones.uspPagoCanonModificar @PagoId, '2026-06-28 10:00:00', 78000.00;
+    EXEC Concesiones.uspPagoCanonModificar @PagoId, '2026-07-10 10:00:00', 78000.00;
     PRINT '[OK - EXITOSO] Pago modificado correctamente.';
 END TRY
 BEGIN CATCH
@@ -1438,7 +1464,7 @@ PRINT '--- TEST: Ventas.uspEntradaModificar ---';
 -- CASO: ERROR - ID inexistente
 -- Resultado esperado: THROW indicando que no existe.
 BEGIN TRY
-    EXEC Ventas.uspEntradaModificar 99999, 'Nombre', 'Desc', 10000.00;
+    EXEC Ventas.uspEntradaModificar 99999, 'Nombre', 'Desc';
     PRINT '[FAIL] No se lanzo el error esperado.';
 END TRY
 BEGIN CATCH
@@ -1450,7 +1476,7 @@ GO
 DECLARE @EntradaId INT;
 SELECT @EntradaId = EntradaId FROM Ventas.Entrada WHERE Nombre = 'Entrada Prueba';
 BEGIN TRY
-    EXEC Ventas.uspEntradaModificar @EntradaId, 'Entrada Prueba Modificada', 'Acceso sector norte - actualizado', 28000.00;
+    EXEC Ventas.uspEntradaModificar @EntradaId, 'Entrada Prueba Modificada', 'Acceso sector norte - actualizado';
     PRINT '[OK - EXITOSO] Entrada modificada correctamente.';
 END TRY
 BEGIN CATCH

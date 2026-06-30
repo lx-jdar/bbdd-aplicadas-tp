@@ -1253,10 +1253,13 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM Ventas.TipoVisitante WHERE TipoVisitanteId = @TipoVisitanteId)
         SET @ERRORES += 'El tipo de visitante que se quiere eliminar no existe.' + CHAR(13) + CHAR(10);
 
+    IF EXISTS (SELECT 1 FROM Ventas.LineaVenta WHERE TipoVisitanteId = @TipoVisitanteId)
+        SET @ERRORES += 'El tipo de visitante tiene ventas asociadas y no puede eliminarse para conservar el historial.' + CHAR(13) + CHAR(10);
+
     IF @ERRORES <> ''
         THROW 50001, @ERRORES, 1;
 
-    UPDATE Ventas.TipoVisitante 
+    UPDATE Ventas.TipoVisitante
     SET EsActivo = 0
     WHERE TipoVisitanteId = @TipoVisitanteId;
 END

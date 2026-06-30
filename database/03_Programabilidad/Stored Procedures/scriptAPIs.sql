@@ -122,7 +122,8 @@ GO
 CREATE OR ALTER PROCEDURE Parques.uspConsultarFeriados
     @anio      INT  = NULL,
     @fecha     DATE = NULL,
-    @esFeriado BIT  = NULL OUTPUT
+    @esFeriado BIT  = NULL OUTPUT,
+    @total     INT  = NULL OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -201,6 +202,8 @@ BEGIN
         SET @esFeriado = CASE WHEN EXISTS (
             SELECT 1 FROM #Feriados WHERE Fecha = @fecha
         ) THEN 1 ELSE 0 END;
+
+    SELECT @total = COUNT(*) FROM #Feriados;
 
     SELECT Fecha, NombreLocal, NombreIngles, EsFijo, EsNacional, Tipo
     FROM #Feriados

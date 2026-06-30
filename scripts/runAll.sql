@@ -52,7 +52,6 @@ PRINT 'Iniciando setup de la base de datos...'
 	:r "database/07_Testing/test_sp_abm.sql"
 	:r "database/07_Testing/test_sp_negocio.sql"
 	:r "database/07_Testing/test_Personal.uspAsignarGuia.sql"
-	:r "database/07_Testing/test_importacion.sql"
 	:r "database/07_Testing/test_reportes.sql"
 
 PRINT 'Setup finalizado.'
