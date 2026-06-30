@@ -19,23 +19,23 @@
   </Folder>
 
   <Folder Name="/02_Seguridad/">
-    <File Path="database/02_Seguridad/Logins.sql" />
-    <File Path="database/02_Seguridad/Users.sql" />
-    <File Path="database/02_Seguridad/Roles.sql" />
+    <File Path="database/02_Seguridad/01_Roles.sql" />
+	  <File Path="database/02_Seguridad/02_Logins.sql" />
+	  <File Path="database/02_Seguridad/03_Users.sql" />
+	  <File Path="database/02_Seguridad/Cifrado.sql" />	
     <File Path="database/02_Seguridad/Permisos.sql" />
-    <File Path="database/02_Seguridad/Cifrado.sql" />
   </Folder>
 
   <Folder Name="/03_Programabilidad/" />
-
+  
   <Folder Name="/03_Programabilidad/Functions/">
     <File Path="database/03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql" />
   </Folder>
-
+  
   <Folder Name="/03_Programabilidad/Stored Procedures/">
     <File Path="database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql" />
   </Folder>
-
+  
   <Folder Name="/03_Programabilidad/Views/">
     <File Path="database/03_Programabilidad/Views/Parques.vwClientOrders.sql" />
   </Folder>
@@ -44,6 +44,8 @@
     <File Path="database/04_Data/datos_iniciales.sql" />
   </Folder>
 
+  <Folder Name="/05_Imports/" />
+  
   <Folder Name="/05_Imports/indec/">
     <File Path="database/05_Imports/indec/Parques.uspImportarAreasProtegidas.sql" />
   </Folder>
@@ -61,10 +63,14 @@
   </Folder>
 
   <Folder Name="/07_Testing/">
-    <File Path="database/07_Testing/test_Personal.uspAsignarGuia.sql" />
     <File Path="database/07_Testing/test_importacion.sql" />
     <File Path="database/07_Testing/test_sp_abm.sql" />
     <File Path="database/07_Testing/test_sp_negocio.sql" />
     <File Path="database/07_Testing/test_reportes.sql" />
   </Folder>
+
+  <Folder Name="/Logs/">
+    <File Path="GestionParquesNacionales/ver-resultado-completo-dba.log" />
+  </Folder>
+  
 </Solution>

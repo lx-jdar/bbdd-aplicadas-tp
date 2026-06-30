@@ -8,50 +8,57 @@ Integrantes:
      - Romano, Jorge Dario
 
 Fecha: -- pendiente
-Objetivo: Inicialización completa de la base de datos: DDL, seguridad,
-          programabilidad y datos semilla. No incluye importación masiva
-          (ver database/05_Imports/).
+Objetivo: Carga inicial de datos (seed): parques, actividades, guias,
+          guardaparques, concesiones e historial de ventas requeridos
+          para los criterios de aceptacion del TP.
 ============================================================ */
 
-PRINT 'Iniciando setup de la base de datos...'
+PRINT 'Inicio de Ejecución de Scripts...'
+
+:OUT ver-resultado-completo-bda.log
+
+PRINT 'Creando base de datos...'
 
 -- 01: DDL
-	:r database/01_DDL/00_teardown.sql
-	:r database/01_DDL/01_base_esquemas.sql
-	:r database/01_DDL/02_tablas.sql
-
--- 02: Seguridad
-	--:r database/02_Seguridad/Logins.sql
-	--:r database/02_Seguridad/Users.sql
-	--:r database/02_Seguridad/Roles.sql
-	--:r database/02_Seguridad/Permisos.sql
-	--:r database/02_Seguridad/Cifrado.sql
-
--- 03: Programabilidad — Funciones
+	:r "database/01_DDL/00_teardown.sql"
+	:r "database/01_DDL/01_base_esquemas.sql"
+	:r "database/01_DDL/02_tablas.sql"
+	
+-- 02: Programabilidad
+	
+	-- 03: Programabilidad — Funciones
 	:r "database/03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql"
-
--- 03: Programabilidad — Stored Procedures
+	
+	-- Procedimientos Almacenados
 	:r "database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql"
+	-- Disparadores
+	--:r ../database/ddl/triggerA.sql
+	
+	-- Vistas
+	-- :r "database/03_Programabilidad/Views/Parques.vwClientOrders.sql"
 
--- 03: Programabilidad — Vistas
-	:r "database/03_Programabilidad/Views/Parques.vwClientOrders.sql"
-
--- 04: Data
+-- 03: Data
 	:r "database/04_Data/datos_iniciales.sql"
 
--- 05: Imports — Stored Procedures de importación
-	:r "database/05_Imports/indec/Parques.uspImportarAreasProtegidas.sql"
-	:r "database/05_Imports/ign/Parques.uspImportarUbicacionesDeAreasProtegidas.sql"
+-- 04: Imports
 	:r "database/05_Imports/gobar/Parques.uspImportarEstadisticasVisitas.sql"
+	:r "database/05_Imports/ign/Parques.uspImportarUbicacionesDeAreasProtegidas.sql"
+	:r "database/05_Imports/indec/Parques.uspImportarAreasProtegidas.sql"
 
--- 06: Reportes
+-- 05: Reports
 	:r "database/06_Reportes/scriptReportes.sql"
+
+-- 06: Seguridad
+	:r "database/02_Seguridad/01_Roles.sql"
+	:r "database/02_Seguridad/02_Logins.sql"
+	:r "database/02_Seguridad/03_Users.sql"
 
 -- 07: Testing
 	:r "database/07_Testing/test_sp_abm.sql"
 	:r "database/07_Testing/test_sp_negocio.sql"
-	:r "database/07_Testing/test_Personal.uspAsignarGuia.sql"
-	:r "database/07_Testing/test_importacion.sql"
 	:r "database/07_Testing/test_reportes.sql"
 
-PRINT 'Setup finalizado.'
+PRINT 'Secuencia de Generación Finalizada...'
+
+:OUT STDOUT
+PRINT 'Fin de generación!'
