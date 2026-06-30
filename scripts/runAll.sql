@@ -15,7 +15,7 @@ Objetivo: Carga inicial de datos (seed): parques, actividades, guias,
 
 PRINT 'Inicio de Ejecución de Scripts...'
 
-:OUT ver-resultado-completo-bda.log
+:OUT "GestionParquesNacionales/ver-resultado-completo-bda.log"
 
 -- 01: DDL
 	:r "database/01_DDL/00_teardown.sql"
@@ -24,6 +24,7 @@ PRINT 'Inicio de Ejecución de Scripts...'
 
 -- 02: Programabilidad
 	:r "database/03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql"
+	:r "database/03_Programabilidad/Stored Procedures/scriptAPIs.sql"
 	:r "database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql"
 
 -- 03: Importación
@@ -35,9 +36,7 @@ PRINT 'Inicio de Ejecución de Scripts...'
 	:r "database/06_Reportes/scriptReportes.sql"
 
 -- 05: Seguridad
-	:r "database/02_Seguridad/01_Roles.sql"
-	:r "database/02_Seguridad/02_Logins.sql"
-	:r "database/02_Seguridad/03_Users.sql"
+	:r "database/02_Seguridad/scriptCreateSeguridad.sql"
 
 -- 06: Datos iniciales
 	:r "database/04_Data/datos_iniciales.sql"
