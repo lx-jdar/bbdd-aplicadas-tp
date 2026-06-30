@@ -64,10 +64,11 @@
     <File Path="database/07_Testing/test_sp_abm.sql" />
     <File Path="database/07_Testing/test_sp_negocio.sql" />
     <File Path="database/07_Testing/test_reportes.sql" />
+    <File Path="database/07_Testing/test_importacion.sql" />
   </Folder>
 
   <Folder Name="/Logs/">
-    <File Path="GestionParquesNacionales/ver-resultado-completo-dba.log" />
+    <File Path="GestionParquesNacionales/ver-resultado-completo-bda.log" />
   </Folder>
   
 </Solution>

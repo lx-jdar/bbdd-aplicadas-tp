@@ -139,10 +139,10 @@ GRANT EXECUTE ON Ventas.uspEntradaBaja             TO rol_operador_ventas;
 GRANT EXECUTE ON Ventas.uspVentaRegistrar          TO rol_operador_ventas;
 
 -- EXECUTE en SPs de reportes operativos
-GRANT EXECUTE ON Ventas.usrReporteVisitas          TO rol_operador_ventas;
-GRANT EXECUTE ON Ventas.usrReporteIngresos         TO rol_operador_ventas;
-GRANT EXECUTE ON Ventas.usrMatrizVisitas           TO rol_operador_ventas;
-GRANT EXECUTE ON Ventas.usrVisitantesPorParque     TO rol_operador_ventas;
+GRANT EXECUTE ON Ventas.uspReporteVisitas          TO rol_operador_ventas;
+GRANT EXECUTE ON Ventas.uspReporteIngresos         TO rol_operador_ventas;
+GRANT EXECUTE ON Ventas.uspMatrizVisitas           TO rol_operador_ventas;
+GRANT EXECUTE ON Ventas.uspReporteDemandaActividades     TO rol_operador_ventas;
 GO
 
 -- ============================================================
@@ -218,10 +218,10 @@ GRANT SELECT ON SCHEMA::Concesiones TO rol_consultas;
 GRANT SELECT ON SCHEMA::Ventas      TO rol_consultas;
 
 -- EXECUTE en SPs de reportes de Ventas
-GRANT EXECUTE ON Ventas.usrReporteVisitas       TO rol_consultas;
-GRANT EXECUTE ON Ventas.usrReporteIngresos      TO rol_consultas;
-GRANT EXECUTE ON Ventas.usrMatrizVisitas        TO rol_consultas;
-GRANT EXECUTE ON Ventas.usrVisitantesPorParque  TO rol_consultas;
+GRANT EXECUTE ON Ventas.uspReporteVisitas       TO rol_consultas;
+GRANT EXECUTE ON Ventas.uspReporteIngresos      TO rol_consultas;
+GRANT EXECUTE ON Ventas.uspMatrizVisitas        TO rol_consultas;
+GRANT EXECUTE ON Ventas.uspReporteDemandaActividades  TO rol_consultas;
 
 -- EXECUTE en SPs de reportes de Concesiones
 GRANT EXECUTE ON Concesiones.usrReporteDeudores TO rol_consultas;
@@ -309,8 +309,8 @@ USE master;
 GO
 
 SELECT
-    sp.name                                   AS Login,
-    sp.type_desc                              AS Tipo,
+    CAST(sp.name AS VARCHAR(30))              AS Login,
+    CAST(sp.type_desc AS VARCHAR(30))         AS Tipo,
     sp.is_disabled                            AS Deshabilitado,
     sl.is_policy_checked                      AS PoliticaPassword,
     sl.is_expiration_checked                  AS ExpiracionPassword,
@@ -334,9 +334,9 @@ USE GestionParquesNacionales;
 GO
 
 SELECT
-    dp.name                                       AS Usuario,
-    dp.type_desc                                  AS Tipo,
-    sl.name                                       AS LoginAsociado,
+    CAST(dp.name AS VARCHAR(30))                  AS Usuario,
+    CAST(dp.type_desc AS VARCHAR(30))             AS Tipo,
+    CAST(sl.name  AS VARCHAR(30))                 AS LoginAsociado,
     CONVERT(VARCHAR(10), dp.create_date, 103)     AS FechaCreacion
 FROM sys.database_principals dp
     LEFT JOIN sys.server_principals sl
@@ -353,8 +353,8 @@ GO
 -- 12.3: Asignación de usuarios a roles
 WITH MiembrosRol AS (
     SELECT
-        rol.name    AS Rol,
-        usr.name    AS Usuario
+        CAST(rol.name AS VARCHAR(30))    AS Rol,
+        CAST(usr.name AS VARCHAR(30))    AS Usuario
     FROM sys.database_role_members drm
         INNER JOIN sys.database_principals rol
             ON drm.role_principal_id   = rol.principal_id

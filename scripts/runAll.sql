@@ -45,6 +45,7 @@ PRINT 'Inicio de Ejecución de Scripts...'
 	:r "database/07_Testing/test_sp_abm.sql"
 	:r "database/07_Testing/test_sp_negocio.sql"
 	:r "database/07_Testing/test_reportes.sql"
+	--:r "database/07_Testing/test_importacion.sql"
 
 PRINT 'Secuencia de Generación Finalizada...'
 

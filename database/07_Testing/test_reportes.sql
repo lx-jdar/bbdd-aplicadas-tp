@@ -23,7 +23,7 @@ GO
 ============================================================ */
  
 PRINT '==========================================================';
-PRINT 'REPORTE 1 - usrReporteVisitas';
+PRINT 'REPORTE 1 - uspReporteVisitas';
 PRINT '==========================================================';
 GO
  
@@ -39,27 +39,27 @@ GO
 -- P9: Jun=3
 -- P10: Jun=4
 PRINT 'TEST 1.1 - Visitas semanales (@Periodo = ''S'')';
-EXEC Ventas.usrReporteVisitas 'S';
+EXEC Ventas.uspReporteVisitas 'S';
 GO
  
 PRINT 'TEST 1.2 - Visitas mensuales (@Periodo = ''M'')';
-EXEC Ventas.usrReporteVisitas 'M';
+EXEC Ventas.uspReporteVisitas 'M';
 GO
  
 -- Esperado TEST 1.3 (anual) - CantidadVisitantes por ParqueId:
 -- P1=6, P2=1, P3=7, P4=1, P5=3, P6=1, P7=2, P8=2, P9=3, P10=4
 PRINT 'TEST 1.3 - Visitas anuales (@Periodo = ''A'')';
-EXEC Ventas.usrReporteVisitas 'A';
+EXEC Ventas.uspReporteVisitas 'A';
 GO
  
 PRINT 'TEST 1.4 - Todos los periodos (@Periodo = '''' / default)';
-EXEC Ventas.usrReporteVisitas '';
+EXEC Ventas.uspReporteVisitas '';
 GO
  
 -- Esperado: RAISERROR (parámetro inválido), sin resultset.
 PRINT 'TEST 1.5 - Parámetro inválido (debe lanzar error)';
 BEGIN TRY
-    EXEC Ventas.usrReporteVisitas 'X';
+    EXEC Ventas.uspReporteVisitas 'X';
     PRINT '[FAIL] No se lanzo el error esperado.';
 END TRY
 BEGIN CATCH
@@ -69,12 +69,12 @@ GO
  
  
 PRINT '==========================================================';
-PRINT 'REPORTE 2 - usrReporteIngresos';
+PRINT 'REPORTE 2 - uspReporteIngresos';
 PRINT '==========================================================';
 GO
  
 PRINT 'TEST 2.1 - Ingresos semanales (@Periodo = ''S'')';
-EXEC Ventas.usrReporteIngresos 'S';
+EXEC Ventas.uspReporteIngresos 'S';
 GO
  
 -- Esperado TEST 2.2 (mensual) - IngresoEntradas / IngresoActividades / IngresoConcesiones por ParqueId/Mes:
@@ -89,7 +89,7 @@ GO
 -- P9: Jun(150000/35000/0)
 -- P10: Jun(134000/140000/0)
 PRINT 'TEST 2.2 - Ingresos mensuales (@Periodo = ''M'')';
-EXEC Ventas.usrReporteIngresos 'M';
+EXEC Ventas.uspReporteIngresos 'M';
 GO
  
 -- Esperado TEST 2.3 (anual) - IngresoEntradas / IngresoActividades / IngresoConcesiones / IngresoTotal:
@@ -104,18 +104,18 @@ GO
 -- P9:  150000.00 /   35000.00 /      0.00 /  185000.00
 -- P10: 134000.00 /  140000.00 /      0.00 /  274000.00
 PRINT 'TEST 2.3 - Ingresos anuales (@Periodo = ''A'')';
-EXEC Ventas.usrReporteIngresos 'A';
+EXEC Ventas.uspReporteIngresos 'A';
 GO
  
 PRINT 'TEST 2.4 - Todos los periodos (@Periodo = '''' / default)';
-EXEC Ventas.usrReporteIngresos '';
+EXEC Ventas.uspReporteIngresos '';
 GO
  
 PRINT 'TEST 2.5 - Parámetro inválido (debe lanzar error)';
 
 PRINT 'TEST 1.5 - Parámetro inválido (debe lanzar error)';
 BEGIN TRY
-    EXEC Ventas.usrReporteIngresos 'Z';
+    EXEC Ventas.uspReporteIngresos 'Z';
     PRINT '[FAIL] No se lanzo el error esperado.';
 END TRY
 BEGIN CATCH
@@ -173,7 +173,7 @@ GO
  
  
 PRINT '==========================================================';
-PRINT 'REPORTE 4 - usrMatrizVisitas (PIVOT)';
+PRINT 'REPORTE 4 - uspMatrizVisitas (PIVOT)';
 PRINT '==========================================================';
 GO
  
@@ -190,16 +190,16 @@ GO
 -- P10 (Lago Puelo):     Jun=4                                   → Total=4
 -- Meses sin visitas en 0 (ISNULL). 10 filas en total.
 PRINT 'TEST 4.1 - Matriz de visitas año en curso (default 2026)';
-EXEC Ventas.usrMatrizVisitas;
+EXEC Ventas.uspMatrizVisitas;
 GO
  
 PRINT 'TEST 4.2 - Matriz de visitas con @Anio = 2026 (explícito, idéntico a 4.1)';
-EXEC Ventas.usrMatrizVisitas 2026;
+EXEC Ventas.uspMatrizVisitas 2026;
 GO
  
 -- Esperado: 0 filas (no hay ventas en 2020).
 PRINT 'TEST 4.3 - Matriz de visitas para año sin datos (@Anio = 2020, espera 0 filas)';
-EXEC Ventas.usrMatrizVisitas 2020;
+EXEC Ventas.uspMatrizVisitas 2020;
 GO
  
  
@@ -239,7 +239,7 @@ GO
  
  
 PRINT '==========================================================';
-PRINT 'REPORTE 6 - usrVisitantesPorParque (actividades más demandadas)';
+PRINT 'REPORTE 6 - uspReporteDemandaActividades (actividades más demandadas)';
 PRINT '==========================================================';
 GO
  
@@ -258,5 +258,5 @@ GO
 --   P10: Tour Lago Puelo en Catamarán=2
 -- (El valor 15 de "Tour Sendero Macuco" corresponde al caso de cupo completo del seed.)
 PRINT 'TEST 6.1 - Actividades más demandadas por parque';
-EXEC Ventas.usrReporteDemandaActividades;
+EXEC Ventas.uspReporteDemandaActividades;
 GO

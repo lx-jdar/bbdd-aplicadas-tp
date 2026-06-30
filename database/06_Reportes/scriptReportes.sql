@@ -19,7 +19,7 @@ GO
 -- Parámetro @Periodo: 'S' = Semana | 'M' = Mes | 'A' = Año | '' = los tres
 -- =============================================================================
 
-CREATE OR ALTER PROCEDURE Ventas.usrReporteVisitas (
+CREATE OR ALTER PROCEDURE Ventas.uspReporteVisitas (
     @Periodo CHAR(1) = ''
 )
 AS
@@ -151,7 +151,7 @@ GO
 -- Parámetro @Periodo: 'S' = Semana | 'M' = Mes | 'A' = Año | '' = los tres
 -- =============================================================================
 
-CREATE OR ALTER PROCEDURE Ventas.usrReporteIngresos (
+CREATE OR ALTER PROCEDURE Ventas.uspReporteIngresos (
     @Periodo CHAR(1) = ''
 )
 AS
@@ -528,7 +528,7 @@ GO
 -- Parámetro @Anio. Si no se especifica toma el año en curso
 -- =============================================================================
 
-CREATE OR ALTER PROCEDURE Ventas.usrMatrizVisitas (
+CREATE OR ALTER PROCEDURE Ventas.uspMatrizVisitas (
     @Anio INT = NULL
 )
 AS
@@ -631,7 +631,7 @@ GO
 -- =============================================================================
 -- SP 6: Actividades mas demandadas
 -- =============================================================================
-CREATE OR ALTER PROCEDURE Ventas.usrReporteDemandaActividades
+CREATE OR ALTER PROCEDURE Ventas.uspReporteDemandaActividades
 AS
 BEGIN
     SET NOCOUNT ON;
