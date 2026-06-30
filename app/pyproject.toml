@@ -1,0 +1,14 @@
+[project]
+name = "parques-nacionales"
+version = "0.1.0"
+description = "Aplicación web — Sistema de Gestión de Parques Nacionales (UNLaM BBDD Aplicada)"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.35.0",
+    "pyodbc>=5.1.0",
+    "pandas>=2.2.0",
+    "plotly>=5.22.0",
+    "folium>=0.17.0",
+    "streamlit-folium>=0.20.0",
+    "python-dotenv>=1.0.0",
+]
