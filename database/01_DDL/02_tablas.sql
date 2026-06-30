@@ -366,7 +366,8 @@ ALTER TABLE Importacion.StgAreasProtegidasGeoJson
 
 IF OBJECT_ID('Importacion.StgEstadisticasVisitas', 'U') IS NOT NULL DROP TABLE Importacion.StgEstadisticasVisitas;
 CREATE TABLE Importacion.StgEstadisticasVisitas (
-    IndicieTiempo   VARCHAR(20) NULL,
-    OrigenVisitante VARCHAR(30) NULL,
-    Visitas         VARCHAR(15) NULL
+    IndicieTiempo   VARCHAR(20)  NULL,
+    OrigenVisitante VARCHAR(30)  NULL,
+    Visitas         VARCHAR(15)  NULL,
+    Observaciones   VARCHAR(MAX) NULL
 );

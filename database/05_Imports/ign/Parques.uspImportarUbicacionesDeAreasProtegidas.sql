@@ -31,7 +31,8 @@ Objetivo: Importación de coordenadas de referencia (Latitud / Longitud) para
           Este SP NO crea parques nuevos; solo actualiza coordenadas de existentes.
 
           Prerequisito:
-            - Ejecutar 00_InfraestructuraImportacion.sql antes.
+            - Ejecutar el runAll.sql completo (o al menos hasta 02_tablas.sql)
+              para que el schema Importacion y sus tablas existan.
             - Ejecutar Parques.uspImportarAreasProtegidas primero
               para que los parques APN existan en el sistema.
             - Copiar areas_protegida_geo.geojson a C:\datasets\ en el servidor SQL Server.
@@ -42,21 +43,22 @@ Objetivo: Importación de coordenadas de referencia (Latitud / Longitud) para
             lee el archivo con el codepage del servidor (tipicamente Latin1).
             Los caracteres con tilde pueden no leerse correctamente en servidores
             con collation Latin1. En ese caso, convertir el archivo a ANSI/Latin-1
-            antes de importar.
+            antes de importar con PowerShell:
+            $c = Get-Content 'C:\datasets\areas_protegida_geo.geojson' -Encoding UTF8 -Raw
+            [IO.File]::WriteAllText('C:\datasets\areas_protegida_geo.geojson', $c, [Text.Encoding]::GetEncoding(1252))
 ============================================================ */
 
 USE GestionParquesNacionales;
 GO
 
 CREATE OR ALTER PROCEDURE Parques.uspImportarUbicacionesDeAreasProtegidas
+    @archivo      NVARCHAR(500) = N'C:\datasets\areas_protegida_geo.geojson',
     @actualizadas INT = 0 OUTPUT,
     @sinMatch     INT = 0 OUTPUT,
     @errores      INT = 0 OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    DECLARE @archivo NVARCHAR(500) = N'C:\datasets\areas_protegida_geo.geojson';
 
     -- Registrar inicio en auditoría
     DECLARE @importacionId INT;
@@ -68,13 +70,19 @@ BEGIN
 
     SET @importacionId = SCOPE_IDENTITY();
 
-    -- Leer el GeoJSON completo como texto.
-    -- SINGLE_CLOB lee como VARCHAR(MAX) con el codepage del servidor.
+    -- Leer el GeoJSON completo como texto via SQL dinámico
+    -- (OPENROWSET no acepta variables directamente)
     DECLARE @json NVARCHAR(MAX);
 
     BEGIN TRY
-        SELECT @json = CAST(BulkColumn AS NVARCHAR(MAX))
-        FROM OPENROWSET(BULK 'C:\datasets\areas_protegida_geo.geojson', SINGLE_CLOB) AS x;
+        DECLARE @sqlBulk NVARCHAR(MAX) =
+            N'SELECT @jsonOut = CAST(BulkColumn AS NVARCHAR(MAX)) FROM OPENROWSET(BULK '''
+            + REPLACE(@archivo, N'''', N'''''')
+            + N''', SINGLE_CLOB) AS x';
+
+        EXEC sp_executesql @sqlBulk,
+            N'@jsonOut NVARCHAR(MAX) OUTPUT',
+            @jsonOut = @json OUTPUT;
     END TRY
     BEGIN CATCH
         UPDATE Importacion.AuditoriaImportacion
@@ -82,9 +90,10 @@ BEGIN
             MensajeError = ERROR_MESSAGE()
         WHERE ImportacionId = @importacionId;
 
-        THROW 60042,
-            'Error al leer el archivo GeoJSON. Verifique que C:\datasets\areas_protegida_geo.geojson existe y que la cuenta de servicio tiene permisos de lectura.',
-            1;
+        DECLARE @msgError NVARCHAR(2048) =
+            N'Error al leer el archivo GeoJSON. Verifique que ' + @archivo
+            + N' existe y que la cuenta de servicio tiene permisos de lectura.';
+        THROW 60042, @msgError, 1;
     END CATCH;
 
     IF ISJSON(@json) = 0
@@ -181,7 +190,7 @@ BEGIN
     -- Features con bbox nulo (no se puede calcular centroide)
     DECLARE @sinBbox INT = @filasLeidas - @filasConBbox;
 
-    SET @errores = @sinBbox; -- Solo se consideran errores los features sin bbox
+    SET @errores = @sinBbox;
 
     -- Actualizar auditoría
     UPDATE Importacion.AuditoriaImportacion

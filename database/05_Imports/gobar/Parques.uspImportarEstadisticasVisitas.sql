@@ -28,7 +28,8 @@ Objetivo: Importación masiva de estadísticas históricas de visitas a parques
           Destino: Parques.EstadisticaVisitasNacional
 
           Prerequisito:
-            - Ejecutar 00_InfraestructuraImportacion.sql antes.
+            - Ejecutar el runAll.sql completo (o al menos hasta 02_tablas.sql)
+              para que el schema Importacion y sus tablas existan.
             - Copiar visitas.csv a C:\datasets\ en el servidor SQL Server.
             - La cuenta de servicio de SQL Server debe tener permiso de lectura sobre C:\datasets\.
 ============================================================ */
@@ -37,14 +38,13 @@ USE GestionParquesNacionales;
 GO
 
 CREATE OR ALTER PROCEDURE Parques.uspImportarEstadisticasVisitas
+    @archivo      NVARCHAR(500) = N'C:\datasets\visitas.csv',
     @insertados   INT = 0 OUTPUT,
     @actualizados INT = 0 OUTPUT,
     @errores      INT = 0 OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
-
-    DECLARE @archivo NVARCHAR(500) = N'C:\datasets\visitas.csv';
 
     -- Registrar inicio en auditoría
     DECLARE @importacionId INT;
@@ -56,41 +56,20 @@ BEGIN
 
     SET @importacionId = SCOPE_IDENTITY();
 
-    -- Cargar staging
+    -- Cargar staging via BULK INSERT
+    -- (BULK INSERT no acepta variables directamente, se usa SQL dinámico)
     TRUNCATE TABLE Importacion.StgEstadisticasVisitas;
 
     BEGIN TRY
-        -- Leer el archivo completo como texto
-        DECLARE @csv VARCHAR(MAX);
-        SELECT @csv = BulkColumn
-        FROM OPENROWSET(BULK 'C:\datasets\visitas.csv', SINGLE_CLOB) AS x;
+        DECLARE @q       NCHAR(1)      = CHAR(39); -- comilla simple
+        DECLARE @sqlBulk NVARCHAR(MAX) =
+            N'BULK INSERT Importacion.StgEstadisticasVisitas FROM ' +
+            @q + REPLACE(@archivo, @q, @q+@q) + @q +
+            N' WITH (FIRSTROW = 2, FIELDTERMINATOR = ' + @q + ',' + @q +
+            N', ROWTERMINATOR = '  + @q + '\n' + @q +
+            N', CODEPAGE = '       + @q + '1252' + @q + N')';
 
-        -- Normalizar saltos de línea (CRLF → LF, CR → LF) y eliminar BOM UTF-8 si existe
-        SET @csv = REPLACE(REPLACE(@csv, CHAR(13)+CHAR(10), CHAR(10)), CHAR(13), CHAR(10));
-        IF ASCII(SUBSTRING(@csv, 1, 1)) = 239
-            SET @csv = SUBSTRING(@csv, 4, LEN(@csv));
-
-        -- Saltar la línea de encabezado
-        SET @csv = SUBSTRING(@csv, CHARINDEX(CHAR(10), @csv) + 1, LEN(@csv));
-
-        -- Parsear cada línea y cargar en staging
-        INSERT INTO Importacion.StgEstadisticasVisitas (IndicieTiempo, OrigenVisitante, Visitas)
-        SELECT
-            NULLIF(LTRIM(RTRIM(SUBSTRING(ln, 1,    p1-1))),    ''),
-            NULLIF(LTRIM(RTRIM(SUBSTRING(ln, p1+1, p2-p1-1))), ''),
-            NULLIF(LTRIM(RTRIM(SUBSTRING(ln, p2+1, p3-p2-1))), '')
-        FROM (
-            SELECT ln,
-                   CHARINDEX(',', ln)                                              AS p1,
-                   CHARINDEX(',', ln, CHARINDEX(',', ln)+1)                        AS p2,
-                   CHARINDEX(',', ln, CHARINDEX(',', ln, CHARINDEX(',', ln)+1)+1)  AS p3
-            FROM (
-                SELECT LTRIM(RTRIM(value)) AS ln
-                FROM STRING_SPLIT(@csv, CHAR(10))
-                WHERE LTRIM(RTRIM(value)) <> ''
-            ) lines
-        ) parsed
-        WHERE p1 > 0 AND p2 > 0;
+        EXEC sp_executesql @sqlBulk;
     END TRY
     BEGIN CATCH
         UPDATE Importacion.AuditoriaImportacion
@@ -98,14 +77,16 @@ BEGIN
             MensajeError = ERROR_MESSAGE()
         WHERE ImportacionId = @importacionId;
 
-        THROW 60010,
-            'Error al leer el archivo CSV. Verifique que C:\datasets\visitas.csv existe y que la cuenta de servicio tiene permisos de lectura.',
-            1;
+        DECLARE @msgError NVARCHAR(2048) =
+            N'Error al leer el archivo CSV. Verifique que ' + @archivo
+            + N' existe y que la cuenta de servicio tiene permisos de lectura.';
+        THROW 60010, @msgError, 1;
     END CATCH;
 
     DECLARE @filasLeidas INT = (SELECT COUNT(*) FROM Importacion.StgEstadisticasVisitas);
 
     -- Normalizar y derivar columnas en tabla temporal
+    -- (la columna Observaciones del staging se ignora en el procesamiento)
     SELECT
         ROW_NUMBER() OVER (ORDER BY (SELECT NULL)) AS Fila,
         IndicieTiempo,

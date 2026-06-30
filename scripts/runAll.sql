@@ -32,6 +32,7 @@ PRINT 'Iniciando setup de la base de datos...'
 
 -- 03: Programabilidad — Stored Procedures
 	:r "database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql"
+	:r "database/03_Programabilidad/Stored Procedures/scriptAPIs.sql"
 
 -- 03: Programabilidad — Vistas
 	:r "database/03_Programabilidad/Views/Parques.vwClientOrders.sql"

@@ -34,6 +34,7 @@
 
   <Folder Name="/03_Programabilidad/Stored Procedures/">
     <File Path="database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql" />
+    <File Path="database/03_Programabilidad/Stored Procedures/scriptAPIs.sql" />
   </Folder>
 
   <Folder Name="/03_Programabilidad/Views/">

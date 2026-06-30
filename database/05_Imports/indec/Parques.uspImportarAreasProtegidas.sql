@@ -30,13 +30,15 @@ Objetivo: Importación masiva del catálogo de áreas protegidas desde el archiv
               Descargar: https://www.microsoft.com/en-us/download/details.aspx?id=54920
             - Copiar areas_protegidas.xlsx a C:\datasets\ en el servidor SQL Server.
             - La cuenta de servicio de SQL Server debe tener permiso de lectura sobre C:\datasets\.
-            - Ejecutar 00_InfraestructuraImportacion.sql antes de este script.
+            - Ejecutar el runAll.sql completo (o al menos hasta 02_tablas.sql)
+              para que el schema Importacion y sus tablas existan.
 ============================================================ */
 
 USE GestionParquesNacionales;
 GO
 
 CREATE OR ALTER PROCEDURE Parques.uspImportarAreasProtegidas
+    @archivo      NVARCHAR(500) = N'C:\datasets\areas_protegidas.xlsx',
     @insertadas   INT = 0 OUTPUT,
     @actualizadas INT = 0 OUTPUT,
     @rechazadas   INT = 0 OUTPUT,
@@ -45,7 +47,6 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    DECLARE @archivo      NVARCHAR(500) = N'C:\datasets\areas_protegidas.xlsx';
     DECLARE @importacionId INT;
     DECLARE @fechaInicio   DATETIME = GETDATE();
 
@@ -61,23 +62,28 @@ BEGIN
     TRUNCATE TABLE Importacion.StgAreasProtegidasExcel;
 
     BEGIN TRY
-        INSERT INTO Importacion.StgAreasProtegidasExcel
-            (ImportacionId, NombreRaw, Localizacion, Ecorregion,
-             AnioCreacionRaw, SuperficieRaw, Caracteristicas)
-        SELECT
-            @importacionId,
-            NULLIF(LTRIM(RTRIM(CAST(F1 AS NVARCHAR(300)))), N''),
-            NULLIF(LTRIM(RTRIM(CAST(F2 AS NVARCHAR(500)))), N''),
-            NULLIF(LTRIM(RTRIM(CAST(F3 AS NVARCHAR(300)))), N''),
-            NULLIF(LTRIM(RTRIM(CAST(F4 AS NVARCHAR(100)))), N''),
-            NULLIF(LTRIM(RTRIM(CAST(F5 AS NVARCHAR(50)))),  N''),
-            NULLIF(LTRIM(RTRIM(CAST(F7 AS NVARCHAR(MAX)))), N'')
-        FROM OPENROWSET(
-            'Microsoft.ACE.OLEDB.16.0',
-            'Excel 12.0 Xml;Database=C:\datasets\areas_protegidas.xlsx;HDR=NO;IMEX=1',
-            'SELECT * FROM [030129$]'
-        )
-        WHERE TRY_CAST(LEFT(CAST(F4 AS NVARCHAR(20)), 4) AS INT) IS NOT NULL;
+        -- Cargar staging via SQL dinámico
+        -- (OPENROWSET no acepta variables directamente)
+        DECLARE @sql NVARCHAR(MAX) =
+            N'INSERT INTO Importacion.StgAreasProtegidasExcel ' +
+            N'    (ImportacionId, NombreRaw, Localizacion, Ecorregion, ' +
+            N'     AnioCreacionRaw, SuperficieRaw, Caracteristicas) ' +
+            N'SELECT ' +
+            N'    @importacionId, ' +
+            N'    NULLIF(LTRIM(RTRIM(CAST(F1 AS NVARCHAR(300)))), N''''), ' +
+            N'    NULLIF(LTRIM(RTRIM(CAST(F2 AS NVARCHAR(500)))), N''''), ' +
+            N'    NULLIF(LTRIM(RTRIM(CAST(F3 AS NVARCHAR(300)))), N''''), ' +
+            N'    NULLIF(LTRIM(RTRIM(CAST(F4 AS NVARCHAR(100)))), N''''), ' +
+            N'    NULLIF(LTRIM(RTRIM(CAST(F5 AS NVARCHAR(50)))),  N''''), ' +
+            N'    NULLIF(LTRIM(RTRIM(CAST(F7 AS NVARCHAR(MAX)))), N'''') ' +
+            N'FROM OPENROWSET( ' +
+            N'    ''Microsoft.ACE.OLEDB.16.0'', ' +
+            N'    ''Excel 12.0 Xml;Database=' + REPLACE(@archivo, N'''', N'''''') + N';HDR=NO;IMEX=1'', ' +
+            N'    ''SELECT * FROM [030129$]'' ' +
+            N') ' +
+            N'WHERE TRY_CAST(LEFT(CAST(F4 AS NVARCHAR(20)), 4) AS INT) IS NOT NULL';
+
+        EXEC sp_executesql @sql, N'@importacionId INT', @importacionId;
     END TRY
     BEGIN CATCH
         UPDATE Importacion.AuditoriaImportacion
@@ -85,9 +91,10 @@ BEGIN
             MensajeError = ERROR_MESSAGE()
         WHERE ImportacionId = @importacionId;
 
-        THROW 60033,
-            'Error al leer el archivo XLSX. Verifique que C:\datasets\areas_protegidas.xlsx existe, que el proveedor ACE.OLEDB está instalado y que la cuenta de servicio tiene permisos de lectura.',
-            1;
+        DECLARE @msgError NVARCHAR(2048) =
+            N'Error al leer el archivo XLSX. Verifique que ' + @archivo
+            + N' existe, que el proveedor ACE.OLEDB está instalado y que la cuenta de servicio tiene permisos de lectura.';
+        THROW 60033, @msgError, 1;
     END CATCH;
 
     DECLARE @filasLeidas INT = (SELECT COUNT(*) FROM Importacion.StgAreasProtegidasExcel);
@@ -173,9 +180,6 @@ BEGIN
       AND (AnioCreacionInt IS NULL
         OR AnioCreacionInt < 1800
         OR AnioCreacionInt > YEAR(GETDATE()) + 1);
-
-    -- Superficie inválida (se registra como advertencia, no bloquea la fila)
-    -- "///" es válido para monumentos naturales móviles → SuperficieDecimal = NULL: no es un error
 
     SET @errores    = (SELECT COUNT(DISTINCT StgId) FROM #Errores);
     SET @rechazadas = @errores;
