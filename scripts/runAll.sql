@@ -35,7 +35,7 @@ PRINT 'Creando base de datos...'
 	--:r ../database/ddl/triggerA.sql
 	
 	-- Vistas
-	:r "database/03_Programabilidad/Views/Parques.vwClientOrders.sql"
+	-- :r "database/03_Programabilidad/Views/Parques.vwClientOrders.sql"
 
 -- 03: Data
 	:r "database/04_Data/datos_iniciales.sql"
