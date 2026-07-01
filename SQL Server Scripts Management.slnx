@@ -20,6 +20,7 @@
 
   <Folder Name="/02_Seguridad/">
     <File Path="database/02_Seguridad/scriptCreateSeguridad.sql" />
+    <File Path="database/02_Seguridad/scriptCreateRespaldo.sql" />
 	  <File Path="database/02_Seguridad/Cifrado.sql" />
   </Folder>
 
@@ -27,6 +28,9 @@
   
   <Folder Name="/03_Programabilidad/Functions/">
     <File Path="database/03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql" />
+  </Folder>
+  <Folder Name="/03_Programabilidad/Jobs/">
+    <File Path="database/03_Programabilidad/Jobs/scriptCreateJobs.sql" />
   </Folder>
   
   <Folder Name="/03_Programabilidad/Stored Procedures/">
@@ -65,6 +69,7 @@
     <File Path="database/07_Testing/test_sp_negocio.sql" />
     <File Path="database/07_Testing/test_reportes.sql" />
     <File Path="database/07_Testing/test_importacion.sql" />
+    <File Path="database/07_Testing/test_backups.sql" />
   </Folder>
 
   <Folder Name="/Logs/">

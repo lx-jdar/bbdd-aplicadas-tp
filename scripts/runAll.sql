@@ -26,6 +26,7 @@ PRINT 'Inicio de Ejecución de Scripts...'
 	:r "database/03_Programabilidad/Functions/Parques.ufnLimpiarNombreArea.sql"
 	:r "database/03_Programabilidad/Stored Procedures/scriptAPIs.sql"
 	:r "database/03_Programabilidad/Stored Procedures/scriptCreateProcedures.sql"
+	:r "database/03_Programabilidad/Jobs/scriptCreateJobs.sql"
 
 -- 03: Importación
 	:r "database/05_Imports/gobar/Parques.uspImportarEstadisticasVisitas.sql"
@@ -37,6 +38,8 @@ PRINT 'Inicio de Ejecución de Scripts...'
 
 -- 05: Seguridad
 	:r "database/02_Seguridad/scriptCreateSeguridad.sql"
+	:r "database/02_Seguridad/scriptCreateRespaldo.sql"
+	--:r "database/02_Seguridad/Cifrado.sql"
 
 -- 06: Datos iniciales
 	:r "database/04_Data/datos_iniciales.sql"
@@ -45,6 +48,7 @@ PRINT 'Inicio de Ejecución de Scripts...'
 	:r "database/07_Testing/test_sp_abm.sql"
 	:r "database/07_Testing/test_sp_negocio.sql"
 	:r "database/07_Testing/test_reportes.sql"
+	:r "database/07_Testing/test_backups.sql"
 	--:r "database/07_Testing/test_importacion.sql"
 
 PRINT 'Secuencia de Generación Finalizada...'
